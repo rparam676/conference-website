@@ -1,0 +1,12 @@
+footer {
+  position: fixed;
+  bottom: 0;
+  width: 100%; /* Ensures the footer spans the full width of the viewport */
+  /* Add other styling like height, background, etc. */
+  height: 60px; /* Example height */
+}
+
+/* Add padding to the body to prevent content from being covered by the fixed footer */
+body {
+  padding-bottom: 60px; /* Must match the footer's height */
+}
