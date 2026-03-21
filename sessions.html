@@ -1,235 +1,174 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Session Catalog — TechSummit 2026</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Register — TechSummit 2026</title>
 
-  <!-- Google Fonts -->
-  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet" />
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
 
-  <!-- Bootstrap 5.3.2 -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Bootstrap -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
 
-  <!-- Project Stylesheet -->
-  <link rel="stylesheet" href="css/styles.css" />
+    <!-- Project Stylesheet -->
+    <link rel="stylesheet" href="css/styles.css">
 </head>
 <body>
 
-  <!-- TOAST CONTAINER -->
-  <div class="toast-wrap" id="toasts"></div>
+<div class="toast-wrap" id="toasts"></div>
 
-  <!-- NAVBAR -->
-  <nav class="navbar navbar-expand-lg">
+<nav class="navbar navbar-expand-lg">
     <div class="container">
-      <a class="navbar-brand" href="index.html">
-        <span class="dot"></span>
-        TechSummit <em style="font-style:italic;color:var(--gold2)">2026</em>
-      </a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
-              data-bs-target="#navMenu" aria-label="Toggle navigation">
-        <span style="color:var(--gold);font-size:1.3rem">☰</span>
-      </button>
-      <div class="collapse navbar-collapse justify-content-end" id="navMenu">
-        <ul class="navbar-nav gap-lg-3 mt-3 mt-lg-0">
-          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
-          <li class="nav-item"><a class="nav-link" href="index.html#speakers">Speakers</a></li>
-          <li class="nav-item"><a class="nav-link" href="index.html#schedule">Schedule</a></li>
-          <li class="nav-item"><a class="nav-link active" href="sessions.html">Sessions</a></li>
-          <li class="nav-item"><a class="nav-link" href="signup.html">Register</a></li>
-        </ul>
-      </div>
-    </div>
-  </nav>
-
-  <!-- PAGE HEADER -->
-  <section class="page-head">
-    <div class="container">
-      <p class="eyebrow">Content Management</p>
-      <h1 class="sec-title">Session <em style="font-style:italic;color:var(--gold)">Catalog</em></h1>
-      <div class="divider"></div>
-      <p style="color:var(--muted);font-size:0.9rem;max-width:520px;">
-        Add, update, search, and manage conference sessions. All entries are stored locally
-        and displayed in the catalog below.
-      </p>
-    </div>
-  </section>
-
-  <!-- MAIN CONTENT -->
-  <section class="section">
-    <div class="container">
-      <div class="row g-5">
-
-        <!-- LEFT: FORM -->
-        <div class="col-lg-5" id="sessionFormSection">
-
-          <!-- Edit mode banner -->
-          <div class="edit-banner" id="editBanner">
-            <span>✎ &nbsp;Editing session — update fields and save.</span>
-            <button class="btn-cancel" onclick="cancelEdit()">Cancel</button>
-          </div>
-
-          <div class="form-card">
-            <p class="eyebrow mb-1">Session Entry</p>
-            <h2 style="font-family:var(--display);font-size:1.4rem;color:#fff;font-weight:400;margin-bottom:1.75rem;">
-              Add New Session
-            </h2>
-
-            <form id="sessionForm" novalidate>
-
-              <!-- Session Title -->
-              <div class="mb-4">
-                <label for="sessionTitle" class="form-label">
-                  Session Title <span class="star">★</span>
-                </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="sessionTitle"
-                  name="sessionTitle"
-                  placeholder="e.g. Introduction to Machine Learning"
-                  required
-                />
-                <div class="field-error" id="sessionTitleError"></div>
-              </div>
-
-              <!-- Category -->
-              <div class="mb-4">
-                <label for="category" class="form-label">
-                  Category <span class="star">★</span>
-                </label>
-                <select class="form-select" id="category" name="category" required>
-                  <option value="" disabled selected>Select category...</option>
-                  <option value="Keynote">Keynote</option>
-                  <option value="Workshop">Workshop</option>
-                  <option value="Panel">Panel</option>
-                  <option value="Lightning Talk">Lightning Talk</option>
-                  <option value="Networking">Networking</option>
-                </select>
-                <div class="field-error" id="categoryError"></div>
-              </div>
-
-              <!-- Duration -->
-              <div class="mb-4">
-                <label for="duration" class="form-label">
-                  Duration <span class="star">★</span>
-                </label>
-                <select class="form-select" id="duration" name="duration" required>
-                  <option value="" disabled selected>Select duration...</option>
-                  <option value="30 min">30 min</option>
-                  <option value="45 min">45 min</option>
-                  <option value="60 min">60 min</option>
-                  <option value="90 min">90 min</option>
-                  <option value="120 min">120 min</option>
-                </select>
-                <div class="field-error" id="durationError"></div>
-              </div>
-
-              <!-- Registration Fee -->
-              <div class="mb-4">
-                <label for="fee" class="form-label">
-                  Registration Fee <span class="star">★</span>
-                </label>
-                <select class="form-select" id="fee" name="fee" required>
-                  <option value="" disabled selected>Select fee...</option>
-                  <option value="Free">Free</option>
-                  <option value="$25">$25</option>
-                  <option value="$50">$50</option>
-                  <option value="$99">$99</option>
-                  <option value="$149">$149</option>
-                </select>
-                <div class="field-error" id="feeError"></div>
-              </div>
-
-              <!-- Speaker (Optional) -->
-              <div class="mb-4">
-                <label for="speaker" class="form-label">
-                  Speaker <span style="color:var(--muted);font-size:0.65rem">(Optional)</span>
-                </label>
-                <input
-                  type="text"
-                  class="form-control"
-                  id="speaker"
-                  name="speaker"
-                  placeholder="e.g. Dr. Aisha Singh"
-                />
-                <div class="field-error" id="speakerError"></div>
-              </div>
-
-              <!-- Buttons -->
-              <div class="d-flex gap-3 mt-4 flex-wrap">
-                <button type="submit" class="submit-btn" id="submitBtn">Add Session</button>
-                <button type="button" class="reset-btn" onclick="resetForm()">Clear Form</button>
-              </div>
-
-              <p style="font-size:0.68rem;color:var(--muted);margin-top:1rem;">
-                <span class="star">★</span> Required field
-              </p>
-            </form>
-          </div>
+        <a class="navbar-brand" href="index.html">
+            <span class="dot"></span>
+            TechSummit <em style="font-style:italic;color:var(--gold2)">2026</em>
+        </a>
+        <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#nav">
+            <span style="color:var(--gold);font-size:1.3rem">☰</span>
+        </button>
+        <div class="collapse navbar-collapse justify-content-end" id="nav">
+            <ul class="navbar-nav gap-lg-3 mt-3 mt-lg-0">
+                <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.html#speakers">Speakers</a></li>
+                <li class="nav-item"><a class="nav-link" href="index.html#schedule">Schedule</a></li>
+                <li class="nav-item"><a class="nav-link" href="sessions.html">Sessions</a></li>
+                <li class="nav-item"><a class="nav-link active" href="signup.html">Register</a></li>
+            </ul>
         </div>
+    </div>
+</nav>
 
-        <!-- RIGHT: CATALOG -->
-        <div class="col-lg-7">
+<div class="page-head">
+    <div class="container">
+        <div class="eyebrow">Attendee Registration</div>
+        <h1 class="sec-title">Join <em style="font-style:italic">TechSummit</em> 2026</h1>
+        <div class="divider"></div>
+        <p style="color:var(--muted);max-width:480px;font-size:0.9rem">
+            Complete the form below to register. Fields marked <span class="star">★</span> are required.
+        </p>
+    </div>
+</div>
 
-          <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
-            <h2 style="font-family:var(--display);font-size:1.6rem;color:#fff;font-weight:400;margin:0;">
-              Session Catalog
-              <span class="count-badge" id="count">0</span>
-            </h2>
-          </div>
+<section class="section" id="registrationForm">
+    <div class="container">
+        <div class="row g-5">
 
-          <!-- jQuery Search Bar -->
-          <div class="mb-4" style="position:relative;">
-            <input
-              type="text"
-              class="form-control"
-              id="searchInput"
-              placeholder="Search by title or category..."
-              autocomplete="off"
-            />
-            <span id="clearSearch"
-              style="position:absolute;right:12px;top:50%;transform:translateY(-50%);
-                     color:var(--muted);cursor:pointer;font-size:1rem;display:none;">✕</span>
-          </div>
+            <div class="col-lg-8">
+                <div class="form-card">
+                    <div class="edit-banner" id="editBanner">
+                        ✏ Editing registration — update and submit to save.
+                        <button class="btn-cancel" onclick="cancelEdit()">Cancel</button>
+                    </div>
 
-          <!-- No results message -->
-          <div id="noResults" style="display:none;text-align:center;padding:2rem 0;color:var(--muted);font-size:0.85rem;">
-            No sessions match your search.
-          </div>
+                    <form id="signupForm" novalidate>
+                        <p class="mb-3" style="font-family:'Playfair Display',serif;font-size:1.2rem;color:#fff">Personal Information</p>
+                        <div class="row g-3 mb-3">
+                            <div class="col-md-6">
+                                <label class="form-label">First Name <span class="star">★</span></label>
+                                <input type="text" class="form-control" id="firstName" name="firstName" placeholder="Jordan" required>
+                                <div class="field-error" id="firstNameError"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Last Name <span class="star">★</span></label>
+                                <input type="text" class="form-control" id="lastName" name="lastName" placeholder="Rivera" required>
+                                <div class="field-error" id="lastNameError"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Email Address <span class="star">★</span></label>
+                                <input type="email" class="form-control" id="email" name="email" placeholder="you@university.edu" required>
+                                <div class="field-error" id="emailError"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Phone <span style="color:var(--muted);font-size:0.65rem">(Optional)</span></label>
+                                <input type="tel" class="form-control" id="phone" name="phone" placeholder="215-555-0198">
+                                <div class="field-error" id="phoneError"></div>
+                            </div>
+                        </div>
 
-          <!-- Empty state -->
-          <div class="empty" id="empty">
-            <div class="empty-icon">🗂️</div>
-            <p style="color:var(--muted);font-size:0.85rem;margin:0;">
-              No sessions added yet.<br />Fill out the form to get started.
-            </p>
-          </div>
+                        <hr style="border-color:var(--border);margin:1.5rem 0">
 
-          <!-- Cards Grid -->
-          <div class="row g-3" id="grid"></div>
+                        <p class="mb-3" style="font-family:'Playfair Display',serif;font-size:1.2rem;color:#fff">Academic Profile</p>
+                        <div class="row g-3 mb-4">
+                            <div class="col-md-6">
+                                <label class="form-label">Year / Grade Level <span class="star">★</span></label>
+                                <select class="form-select" id="yearLevel" name="yearLevel" required>
+                                    <option value="">Select level...</option>
+                                    <option value="1">1st Year (Freshman)</option>
+                                    <option value="2">2nd Year (Sophomore)</option>
+                                    <option value="3">3rd Year (Junior)</option>
+                                    <option value="4">4th Year (Senior)</option>
+                                    <option value="5">Graduate Student</option>
+                                    <option value="6">Faculty / Professor</option>
+                                </select>
+                                <div class="field-error" id="yearLevelError"></div>
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label">Institution / Organization <span class="star">★</span></label>
+                                <input type="text" class="form-control" id="institution" name="institution" placeholder="Penn State University" required>
+                                <div class="field-error" id="institutionError"></div>
+                            </div>
+                        </div>
+
+                        <div class="d-flex flex-wrap gap-3 align-items-center">
+                            <button type="submit" class="submit-btn" id="submitBtn">Register Now</button>
+                            <button type="button" class="reset-btn" onclick="cancelEdit()">Clear Form</button>
+                            <span style="margin-left:auto;font-size:0.72rem;color:var(--muted)"><span class="star">★</span> Required</span>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div style="position:sticky;top:90px;display:flex;flex-direction:column;gap:1.25rem">
+                    <div style="background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1.75rem">
+                        <p style="font-family:'Playfair Display',serif;color:var(--gold);margin-bottom:1rem">Conference Details</p>
+                        <div style="display:flex;flex-direction:column;gap:0.75rem;font-size:0.85rem;color:var(--muted)">
+                            <div>🗓 &nbsp;<strong style="color:var(--cream)">April 18–20, 2026</strong></div>
+                            <div>📍 &nbsp;<strong style="color:var(--cream)">Pennsylvania Convention Center</strong></div>
+                            <div>🎟 &nbsp;<strong style="color:var(--success)">Open — Limited Seats</strong></div>
+                            <div>💻 &nbsp;<strong style="color:var(--cream)">In-Person &amp; Virtual</strong></div>
+                        </div>
+                    </div>
+                    <div style="background:rgba(201,168,76,0.07);border:1px solid var(--border);border-radius:6px;padding:1.75rem">
+                        <p style="font-family:'Playfair Display',serif;color:var(--gold);margin-bottom:0.9rem">What's Included</p>
+                        <div style="display:flex;flex-direction:column;gap:0.45rem;font-size:0.83rem;color:var(--muted)">
+                            <div>✓ &nbsp;All 3 conference days</div>
+                            <div>✓ &nbsp;30+ sessions &amp; workshops</div>
+                            <div>✓ &nbsp;Speaker Q&amp;A &amp; panels</div>
+                            <div>✓ &nbsp;Networking reception</div>
+                            <div>✓ &nbsp;Conference materials</div>
+                            <div>✓ &nbsp;Virtual livestream access</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
-      </div>
     </div>
-  </section>
+</section>
 
-  <!-- FOOTER -->
-  <footer>
+<section style="padding:3rem 0 5rem" id="attendeesSection">
     <div class="container">
-      <p class="brand">TechSummit <em style="font-style:italic">2026</em></p>
-      <p>Philadelphia, PA &nbsp;·&nbsp; April 18–20 &nbsp;·&nbsp; In-Person &amp; Virtual</p>
+        <div class="eyebrow">Attendee Directory</div>
+        <h2 class="sec-title">Registered <em style="font-style:italic">Attendees</em> <span class="count-badge" id="count">0</span></h2>
+        <div class="divider"></div>
+        <div id="empty" class="empty">
+            <div class="empty-icon">🎟</div>
+            <div style="font-family:'Playfair Display',serif;font-size:1.1rem">No attendees yet — be the first!</div>
+        </div>
+        <div class="row g-4" id="grid"></div>git add .
     </div>
-  </footer>
+</section>
 
-  <!-- Bootstrap JS -->
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<footer>
+    <div class="container">
+        <div class="brand">TechSummit 2026</div>
+        <p>© 2026 TechSummit Conference &nbsp;|&nbsp; IST 256 Group Project Conference Website &nbsp;|&nbsp; Philadelphia, PA</p>
+    </div>
+</footer>
 
-  <!-- jQuery 3.7.1 -->
-  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
-  <!-- Sessions JS -->
-  <script src="js/sessions.js"></script>
-
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script src="js/validation.js"></script>
 </body>
 </html>
