@@ -5,14 +5,224 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Session Catalog — TechSummit 2026</title>
 
-  <!-- Google Fonts — THIS is what was missing -->
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
-
-  <!-- Bootstrap 5.3.2 -->
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
 
-  <!-- Your existing stylesheet — handles everything -->
-  <link rel="stylesheet" href="css/styles.css" />
+  <style>
+    :root {
+      --navy:    #0d1b2a;
+      --navy2:   #1b2d45;
+      --gold:    #c9a84c;
+      --gold2:   #e8c76a;
+      --cream:   #f0ead6;
+      --muted:   #7a90b0;
+      --border:  rgba(201, 168, 76, 0.2);
+      --card:    rgba(27, 45, 69, 0.9);
+      --danger:  #f87171;
+      --success: #4ade80;
+    }
+
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--navy);
+      color: var(--cream);
+      line-height: 1.6;
+    }
+
+    .navbar {
+      background: rgba(13, 27, 42, 0.97) !important;
+      border-bottom: 1px solid var(--border);
+      padding: 1rem 0;
+      position: sticky;
+      top: 0;
+      z-index: 999;
+      backdrop-filter: blur(10px);
+    }
+    .navbar-brand {
+      font-family: 'Playfair Display', serif;
+      font-size: 1.4rem;
+      color: var(--gold) !important;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+    }
+    .dot {
+      width: 8px; height: 8px;
+      background: var(--gold);
+      border-radius: 50%;
+      animation: blink 2s infinite;
+      flex-shrink: 0;
+    }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
+    .nav-link {
+      font-size: 0.8rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted) !important;
+      transition: color 0.2s;
+      text-decoration: none;
+    }
+    .nav-link:hover, .nav-link.active { color: var(--gold) !important; }
+
+    .page-head {
+      padding: 4rem 0 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .eyebrow {
+      font-size: 0.7rem;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      color: var(--gold);
+      margin-bottom: 0.5rem;
+    }
+    .sec-title {
+      font-family: 'Playfair Display', serif;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      font-weight: 400;
+      color: #fff;
+      margin-bottom: 0.75rem;
+    }
+    .divider { width: 50px; height: 1px; background: var(--gold); margin-bottom: 1.25rem; }
+    .star { color: var(--gold); }
+    .section { padding: 5rem 0; }
+
+    .form-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      padding: 2.5rem;
+    }
+    .form-label {
+      font-size: 0.7rem;
+      letter-spacing: 1.5px;
+      text-transform: uppercase;
+      color: var(--muted);
+      margin-bottom: 0.35rem;
+      display: block;
+    }
+    .form-control, .form-select {
+      background: rgba(255,255,255,0.04) !important;
+      border: 1px solid rgba(255,255,255,0.1) !important;
+      color: #fff !important;
+      border-radius: 3px;
+      padding: 0.7rem 0.9rem;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      width: 100%;
+    }
+    .form-control::placeholder { color: rgba(255,255,255,0.18) !important; }
+    .form-control:focus, .form-select:focus {
+      border-color: var(--gold) !important;
+      box-shadow: 0 0 0 3px rgba(201,168,76,0.1) !important;
+      outline: none;
+      background: rgba(255,255,255,0.06) !important;
+    }
+    .form-control.is-valid   { border-color: var(--success) !important; background-image: none !important; }
+    .form-control.is-invalid,
+    .form-select.is-invalid  { border-color: var(--danger)  !important; background-image: none !important; }
+    .form-select option { background: var(--navy2); }
+
+    .field-error { font-size: 0.73rem; color: var(--danger); margin-top: 0.3rem; display: none; }
+    .field-error.show { display: block; }
+
+    .edit-banner {
+      background: rgba(201,168,76,0.08);
+      border: 1px solid var(--gold);
+      border-radius: 4px;
+      padding: 0.7rem 1rem;
+      margin-bottom: 1.5rem;
+      color: var(--gold);
+      font-size: 0.85rem;
+      display: none;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .edit-banner.show { display: flex; }
+    .btn-cancel { background: none; border: none; color: var(--gold); cursor: pointer; font-size: 0.8rem; text-decoration: underline; }
+
+    .submit-btn {
+      background: var(--gold); color: var(--navy); border: none;
+      font-size: 0.75rem; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+      padding: 0.85rem 2rem; border-radius: 2px; cursor: pointer; transition: all 0.2s;
+    }
+    .submit-btn:hover { background: var(--gold2); transform: translateY(-1px); }
+    .reset-btn {
+      background: transparent; color: var(--muted);
+      border: 1px solid rgba(255,255,255,0.1);
+      font-size: 0.75rem; font-weight: 600; letter-spacing: 2px; text-transform: uppercase;
+      padding: 0.82rem 1.5rem; border-radius: 2px; cursor: pointer; transition: all 0.2s;
+    }
+    .reset-btn:hover { color: #fff; border-color: rgba(255,255,255,0.25); }
+
+    .sess-card {
+      background: var(--card); border: 1px solid var(--border);
+      border-radius: 6px; overflow: hidden; transition: all 0.25s;
+      animation: pop 0.3s ease; height: 100%;
+    }
+    @keyframes pop { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:none} }
+    .sess-card:hover { border-color: var(--gold); box-shadow: 0 10px 36px rgba(0,0,0,0.4); }
+    .sess-head {
+      background: linear-gradient(135deg, #1a2d50, var(--navy2));
+      border-bottom: 1px solid var(--border);
+      padding: 1.25rem 1.5rem; display: flex; align-items: center; gap: 1rem;
+    }
+    .sess-icon {
+      width: 46px; height: 46px; border-radius: 50%;
+      border: 1px solid var(--gold); background: rgba(201,168,76,0.1);
+      display: flex; align-items: center; justify-content: center;
+      font-size: 1.4rem; flex-shrink: 0;
+    }
+    .sess-title { font-family:'Playfair Display',serif; font-size:1.05rem; color:#fff; }
+    .sess-badge {
+      font-size:0.58rem; letter-spacing:2px; text-transform:uppercase;
+      color:var(--gold); background:rgba(201,168,76,0.1);
+      padding:0.12rem 0.45rem; border-radius:2px; display:inline-block; margin-top:3px;
+    }
+    .sess-body { padding:1.25rem 1.5rem; display:flex; flex-direction:column; gap:0.55rem; }
+    .sess-row  { font-size:0.83rem; color:var(--muted); display:flex; gap:0.6rem; }
+    .sess-foot { padding:0.85rem 1.5rem; border-top:1px solid var(--border); display:flex; justify-content:flex-end; gap:0.6rem; }
+    .btn-edit {
+      background:transparent; border:1px solid var(--gold); color:var(--gold);
+      font-size:0.65rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase;
+      padding:0.35rem 0.85rem; border-radius:2px; cursor:pointer; transition:all 0.2s;
+    }
+    .btn-edit:hover { background:rgba(201,168,76,0.1); }
+    .btn-del {
+      background:transparent; border:1px solid rgba(248,113,113,0.35); color:var(--danger);
+      font-size:0.65rem; font-weight:600; letter-spacing:1.5px; text-transform:uppercase;
+      padding:0.35rem 0.85rem; border-radius:2px; cursor:pointer; transition:all 0.2s;
+    }
+    .btn-del:hover { background:rgba(248,113,113,0.08); }
+
+    .empty { text-align:center; padding:3.5rem; color:var(--muted); }
+    .empty-icon { font-size:2.5rem; opacity:0.35; margin-bottom:0.75rem; }
+    .count-badge {
+      display:inline-flex; align-items:center; justify-content:center;
+      background:var(--gold); color:var(--navy); border-radius:50%;
+      width:26px; height:26px; font-size:0.75rem; font-weight:700; margin-left:0.5rem;
+    }
+
+    .toast-wrap { position:fixed; top:76px; right:1.25rem; z-index:9999; display:flex; flex-direction:column; gap:0.6rem; }
+    .toast-msg {
+      background:#1a2d50; border:1px solid var(--border); border-left:3px solid var(--gold);
+      border-radius:3px; padding:0.85rem 1.25rem; font-size:0.83rem; color:#fff;
+      min-width:240px; display:flex; gap:0.6rem; animation: tin 0.3s ease;
+    }
+    .toast-msg.err { border-left-color: var(--danger); }
+    @keyframes tin  { from{transform:translateX(110%);opacity:0} to{transform:none;opacity:1} }
+    @keyframes tout { from{transform:none;opacity:1} to{transform:translateX(110%);opacity:0} }
+    .toast-msg.out  { animation: tout 0.3s ease forwards; }
+
+    footer { background:var(--navy2); border-top:1px solid var(--border); padding:2rem 0; text-align:center; }
+    footer .brand { font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--gold); }
+    footer p { font-size:0.78rem; color:var(--muted); margin-top:0.25rem; }
+
+    @media (max-width:768px) { .form-card { padding:1.75rem 1.25rem; } }
+  </style>
 </head>
 <body>
 
@@ -24,8 +234,7 @@
         <span class="dot"></span>
         TechSummit <em style="font-style:italic;color:var(--gold2)">2026</em>
       </a>
-      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse"
-              data-bs-target="#navMenu" aria-label="Toggle navigation">
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
         <span style="color:var(--gold);font-size:1.3rem">☰</span>
       </button>
       <div class="collapse navbar-collapse justify-content-end" id="navMenu">
@@ -40,51 +249,42 @@
     </div>
   </nav>
 
-  <section class="page-head">
+  <div class="page-head">
     <div class="container">
       <p class="eyebrow">Content Management</p>
       <h1 class="sec-title">Session <em style="font-style:italic;color:var(--gold)">Catalog</em></h1>
       <div class="divider"></div>
       <p style="color:var(--muted);font-size:0.9rem;max-width:520px;">
-        Add, update, search, and manage conference sessions. All entries are stored locally
-        and displayed in the catalog below.
+        Add, update, search, and manage conference sessions. All entries are stored locally and displayed in the catalog below.
       </p>
     </div>
-  </section>
+  </div>
 
   <section class="section">
     <div class="container">
       <div class="row g-5">
 
-        <!-- LEFT: FORM -->
         <div class="col-lg-5" id="sessionFormSection">
-
           <div class="edit-banner" id="editBanner">
             <span>✎ &nbsp;Editing session — update fields and save.</span>
             <button class="btn-cancel" onclick="cancelEdit()">Cancel</button>
           </div>
-
           <div class="form-card">
             <p class="eyebrow mb-1">Session Entry</p>
-            <h2 style="font-family:var(--display);font-size:1.4rem;color:#fff;font-weight:400;margin-bottom:1.75rem;">
+            <h2 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:#fff;font-weight:400;margin-bottom:1.75rem;">
               Add New Session
             </h2>
-
             <form id="sessionForm" novalidate>
 
               <div class="mb-4">
-                <label for="sessionTitle" class="form-label">
-                  Session Title <span class="star">★</span>
-                </label>
+                <label for="sessionTitle" class="form-label">Session Title <span class="star">★</span></label>
                 <input type="text" class="form-control" id="sessionTitle" name="sessionTitle"
                   placeholder="e.g. Introduction to Machine Learning" required />
                 <div class="field-error" id="sessionTitleError"></div>
               </div>
 
               <div class="mb-4">
-                <label for="category" class="form-label">
-                  Category <span class="star">★</span>
-                </label>
+                <label for="category" class="form-label">Category <span class="star">★</span></label>
                 <select class="form-select" id="category" name="category" required>
                   <option value="" disabled selected>Select category...</option>
                   <option value="Keynote">Keynote</option>
@@ -97,9 +297,7 @@
               </div>
 
               <div class="mb-4">
-                <label for="duration" class="form-label">
-                  Duration <span class="star">★</span>
-                </label>
+                <label for="duration" class="form-label">Duration <span class="star">★</span></label>
                 <select class="form-select" id="duration" name="duration" required>
                   <option value="" disabled selected>Select duration...</option>
                   <option value="30 min">30 min</option>
@@ -112,9 +310,7 @@
               </div>
 
               <div class="mb-4">
-                <label for="fee" class="form-label">
-                  Registration Fee <span class="star">★</span>
-                </label>
+                <label for="fee" class="form-label">Registration Fee <span class="star">★</span></label>
                 <select class="form-select" id="fee" name="fee" required>
                   <option value="" disabled selected>Select fee...</option>
                   <option value="Free">Free</option>
@@ -139,7 +335,6 @@
                 <button type="submit" class="submit-btn" id="submitBtn">Add Session</button>
                 <button type="button" class="reset-btn" onclick="resetForm()">Clear Form</button>
               </div>
-
               <p style="font-size:0.68rem;color:var(--muted);margin-top:1rem;">
                 <span class="star">★</span> Required field
               </p>
@@ -147,13 +342,10 @@
           </div>
         </div>
 
-        <!-- RIGHT: CATALOG -->
         <div class="col-lg-7">
-
-          <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
-            <h2 style="font-family:var(--display);font-size:1.6rem;color:#fff;font-weight:400;margin:0;">
-              Session Catalog
-              <span class="count-badge" id="count">0</span>
+          <div class="d-flex align-items-center mb-4">
+            <h2 style="font-family:'Playfair Display',serif;font-size:1.6rem;color:#fff;font-weight:400;margin:0;">
+              Session Catalog <span class="count-badge" id="count">0</span>
             </h2>
           </div>
 
@@ -169,16 +361,16 @@
             No sessions match your search.
           </div>
 
-          <div class="empty" id="empty">
+          <div class="empty" id="emptyState">
             <div class="empty-icon">🗂️</div>
             <p style="color:var(--muted);font-size:0.85rem;margin:0;">
-              No sessions added yet.<br />Fill out the form to get started.
+              No sessions added yet.<br>Fill out the form to get started.
             </p>
           </div>
 
           <div class="row g-3" id="grid"></div>
-
         </div>
+
       </div>
     </div>
   </section>
@@ -192,7 +384,190 @@
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-  <script src="js/sessions.js"></script>
+  <script>
+    const KEY     = 'conf_sessions';
+    const getAll  = () => { try { return JSON.parse(localStorage.getItem(KEY)) || []; } catch { return []; } };
+    const saveAll = arr => { try { localStorage.setItem(KEY, JSON.stringify(arr)); return true; } catch { return false; } };
+    const uid     = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+    const esc     = s  => String(s || '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const fmtDate = s  => s ? new Date(s).toLocaleDateString('en-US',{month:'short',day:'numeric',year:'numeric'}) : '';
+    const catIcon = { Keynote:'🎤', Workshop:'🛠️', Panel:'💬', 'Lightning Talk':'⚡', Networking:'🤝' };
+
+    function toast(msg, err = false) {
+      const wrap = document.getElementById('toasts');
+      if (!wrap) return;
+      const el = document.createElement('div');
+      el.className = 'toast-msg' + (err ? ' err' : '');
+      el.innerHTML = `<span>${err ? '✕' : '✓'}</span><span>${msg}</span>`;
+      wrap.appendChild(el);
+      setTimeout(() => { el.classList.add('out'); setTimeout(() => el.remove(), 300); }, 3200);
+    }
+
+    function validateField(field) {
+      const id    = field.id;
+      const val   = field.value.trim();
+      const errEl = document.getElementById(id + 'Error');
+      if (!errEl) return true;
+      let ok = true, msg = '';
+      if (field.required && !val) { ok = false; msg = 'This field is required.'; }
+      if (ok && val && id === 'sessionTitle' && val.length < 3) { ok = false; msg = 'Title must be at least 3 characters.'; }
+      field.classList.toggle('is-valid',   ok && !!val);
+      field.classList.toggle('is-invalid', !ok);
+      errEl.textContent = msg;
+      errEl.classList.toggle('show', !ok);
+      return ok;
+    }
+
+    function validateForm(form) {
+      let valid = true;
+      form.querySelectorAll('input, select').forEach(f => { if (!validateField(f)) valid = false; });
+      return valid;
+    }
+
+    function renderCard(s) {
+      const col = document.createElement('div');
+      col.className  = 'col-md-6';
+      col.dataset.id = s.id;
+      const icon = catIcon[s.category] || '📋';
+      col.innerHTML = `
+        <div class="sess-card">
+          <div class="sess-head">
+            <div class="sess-icon">${icon}</div>
+            <div>
+              <div class="sess-title session-title">${esc(s.sessionTitle)}</div>
+              <span class="sess-badge session-category">${esc(s.category)}</span>
+            </div>
+          </div>
+          <div class="sess-body">
+            <div class="sess-row">⏱ &nbsp;<strong style="color:var(--cream)">${esc(s.duration)}</strong></div>
+            <div class="sess-row">🎟 &nbsp;<strong style="color:var(--cream)">${esc(s.fee)}</strong></div>
+            ${s.speaker ? `<div class="sess-row">🎤 &nbsp;${esc(s.speaker)}</div>` : ''}
+            <div class="sess-row" style="font-size:0.72rem;opacity:0.45;margin-top:4px;">🆔 &nbsp;${esc(s.id)}</div>
+            <div class="sess-row" style="font-size:0.72rem;opacity:0.45;">📅 &nbsp;Added ${fmtDate(s.addedDate)}</div>
+          </div>
+          <div class="sess-foot">
+            <button class="btn-edit" onclick="editSession('${s.id}')">Edit</button>
+            <button class="btn-del"  onclick="deleteSession('${s.id}')">Remove</button>
+          </div>
+        </div>`;
+      return col;
+    }
+
+    function renderAll() {
+      const grid  = document.getElementById('grid');
+      const empty = document.getElementById('emptyState');
+      const count = document.getElementById('count');
+      if (!grid) return;
+      const sessions = getAll();
+      if (count) count.textContent = sessions.length;
+      grid.innerHTML = '';
+      if (!sessions.length) { if (empty) empty.style.display = 'block'; return; }
+      if (empty) empty.style.display = 'none';
+      sessions.forEach(s => grid.appendChild(renderCard(s)));
+      const q = $('#searchInput').val().toLowerCase().trim();
+      if (q) applyFilter(q);
+    }
+
+    function applyFilter(query) {
+      let visible = 0;
+      $('.col-md-6[data-id]').each(function () {
+        const title    = $(this).find('.session-title').text().toLowerCase();
+        const category = $(this).find('.session-category').text().toLowerCase();
+        const match    = title.indexOf(query) > -1 || category.indexOf(query) > -1;
+        if (match) { $(this).show(); visible++; } else { $(this).hide(); }
+      });
+      $('#noResults').toggle(visible === 0 && getAll().length > 0);
+    }
+
+    function deleteSession(id) {
+      if (!confirm('Remove this session from the catalog?')) return;
+      const el = document.querySelector(`[data-id="${id}"]`);
+      if (el) el.style.cssText = 'opacity:0;transform:scale(0.95);transition:all 0.25s;';
+      setTimeout(() => {
+        if (saveAll(getAll().filter(s => s.id !== id))) { renderAll(); toast('Session removed.'); }
+      }, 250);
+    }
+
+    function editSession(id) {
+      const s = getAll().find(x => x.id === id);
+      if (!s) return;
+      const form = document.getElementById('sessionForm');
+      form.dataset.editId     = id;
+      form.sessionTitle.value = s.sessionTitle;
+      form.category.value     = s.category;
+      form.duration.value     = s.duration;
+      form.fee.value          = s.fee;
+      form.speaker.value      = s.speaker || '';
+      document.getElementById('editBanner').classList.add('show');
+      document.getElementById('submitBtn').textContent = 'Update Session';
+      document.getElementById('sessionFormSection').scrollIntoView({ behavior:'smooth', block:'start' });
+      toast('Edit mode — update the fields and save.');
+    }
+
+    function cancelEdit() {
+      resetForm();
+      document.getElementById('editBanner').classList.remove('show');
+      document.getElementById('submitBtn').textContent = 'Add Session';
+    }
+
+    function resetForm() {
+      const form = document.getElementById('sessionForm');
+      if (!form) return;
+      delete form.dataset.editId;
+      form.reset();
+      form.querySelectorAll('input, select').forEach(f => f.classList.remove('is-valid','is-invalid'));
+      form.querySelectorAll('.field-error').forEach(e => { e.textContent = ''; e.classList.remove('show'); });
+      document.getElementById('editBanner').classList.remove('show');
+      document.getElementById('submitBtn').textContent = 'Add Session';
+    }
+
+    function handleSubmit(e) {
+      e.preventDefault();
+      const form = e.target;
+      if (!validateForm(form)) return;
+      const isEdit = !!form.dataset.editId;
+      const entry  = {
+        id:           form.dataset.editId || uid(),
+        sessionTitle: form.sessionTitle.value.trim(),
+        category:     form.category.value,
+        duration:     form.duration.value,
+        fee:          form.fee.value,
+        speaker:      form.speaker.value.trim() || null,
+        addedDate:    isEdit
+          ? (getAll().find(s => s.id === form.dataset.editId)?.addedDate || new Date().toISOString())
+          : new Date().toISOString()
+      };
+      let sessions = getAll();
+      if (isEdit) { const i = sessions.findIndex(s => s.id === entry.id); sessions[i] = entry; }
+      else { sessions.push(entry); }
+      if (saveAll(sessions)) {
+        toast(isEdit ? 'Session updated!' : `"${entry.sessionTitle}" added to the catalog!`);
+        cancelEdit();
+        renderAll();
+        setTimeout(() => document.getElementById('grid').scrollIntoView({ behavior:'smooth', block:'start' }), 400);
+      } else {
+        toast('Save failed. Please try again.', true);
+      }
+    }
+
+    $(document).ready(function () {
+      renderAll();
+      document.getElementById('sessionForm').addEventListener('submit', handleSubmit);
+      document.querySelectorAll('#sessionForm input, #sessionForm select').forEach(f => {
+        f.addEventListener('blur',  () => validateField(f));
+        f.addEventListener('input', () => { if (f.classList.contains('is-invalid')) validateField(f); });
+      });
+      $('#searchInput').on('keyup input', function () {
+        const q = $(this).val().toLowerCase().trim();
+        $('#clearSearch').toggle(q.length > 0);
+        applyFilter(q);
+      });
+      $('#clearSearch').on('click', function () {
+        $('#searchInput').val('').trigger('input');
+        $(this).hide();
+      });
+    });
+  </script>
 
 </body>
 </html>
