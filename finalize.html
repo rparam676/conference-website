@@ -4,196 +4,161 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Finalize Registration — TechSummit 2026</title>
- 
   <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
- 
-  <!-- AngularJS MUST be in head so ng-app bootstraps before body renders -->
   <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
- 
+  <script>
+    var app = angular.module('techSummitApp', []);
+    app.service('RegistrationService', ['$http', function($http) {
+      this.submit = function(payload) {
+        return $http({ method:'POST', url:'https://jsonplaceholder.typicode.com/posts', data:payload, headers:{'Content-Type':'application/json'} });
+      };
+    }]);
+    app.controller('FinalizeCtrl', ['$scope','RegistrationService', function($scope, RegistrationService) {
+      function genId() { return 'CONF-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,5).toUpperCase(); }
+      $scope.currentStep = 1; $scope.submitted = false; $scope.ajaxState = null;
+      $scope.savedConfId = ''; $scope.step1Attempted = false; $scope.step2Attempted = false;
+      $scope.formData = { confirmationId:genId(), fullName:'', email:'', phone:'', institution:'', participationType:'', tshirtSize:'', networking:'', specialRequests:'' };
+      $scope.sessions = [
+        {title:'Opening Keynote: The Next Decade',         category:'Keynote',       time:'9:00 AM',  duration:'90 min',  price:'Free', selected:false},
+        {title:'Quantum Advantage: Theory to Application', category:'Workshop',      time:'11:00 AM', duration:'60 min',  price:'$99',  selected:false},
+        {title:'Zero-Trust Security in the Age of AI',     category:'Panel',         time:'2:30 PM',  duration:'45 min',  price:'$50',  selected:false},
+        {title:'Decentralizing the Web: What Comes After', category:'Panel',         time:'4:00 PM',  duration:'60 min',  price:'$50',  selected:false},
+        {title:'Introduction to Machine Learning',         category:'Workshop',      time:'10:00 AM', duration:'120 min', price:'$149', selected:false},
+        {title:'Networking Happy Hour',                    category:'Networking',    time:'5:30 PM',  duration:'90 min',  price:'Free', selected:false},
+        {title:'Lightning Pitch: AI Startups',            category:'Lightning Talk', time:'1:00 PM',  duration:'30 min',  price:'$25',  selected:false},
+        {title:'Building Ethical AI Systems',              category:'Workshop',      time:'3:00 PM',  duration:'60 min',  price:'$99',  selected:false}
+      ];
+      $scope.dietaryOpts = [
+        {label:'Vegetarian',selected:false},{label:'Vegan',selected:false},
+        {label:'Gluten-Free',selected:false},{label:'Kosher',selected:false},
+        {label:'Wheelchair Access',selected:false},{label:'Sign Language',selected:false}
+      ];
+      $scope.selectedCount = function() {
+        var n=0; for(var i=0;i<$scope.sessions.length;i++) if($scope.sessions[i].selected) n++; return n;
+      };
+      function buildPayload() {
+        var chosen=[]; for(var i=0;i<$scope.sessions.length;i++) if($scope.sessions[i].selected) chosen.push({title:$scope.sessions[i].title,category:$scope.sessions[i].category,time:$scope.sessions[i].time,price:$scope.sessions[i].price});
+        var diet=[]; for(var j=0;j<$scope.dietaryOpts.length;j++) if($scope.dietaryOpts[j].selected) diet.push($scope.dietaryOpts[j].label);
+        return {confirmationId:$scope.formData.confirmationId,timestamp:new Date().toISOString(),fullName:$scope.formData.fullName,email:$scope.formData.email,phone:$scope.formData.phone||null,institution:$scope.formData.institution,participationType:$scope.formData.participationType,sessions:chosen,dietaryNeeds:diet,tshirtSize:$scope.formData.tshirtSize||null,networking:$scope.formData.networking||null,specialRequests:$scope.formData.specialRequests||null};
+      }
+      $scope.getJson = function() { try { return JSON.stringify(buildPayload(),null,2); } catch(e) { return '{}'; } };
+      $scope.goStep = function(n) { $scope.currentStep=n; };
+      $scope.goToStep2 = function() {
+        $scope.step1Attempted=true;
+        if(!$scope.formData.fullName||$scope.formData.fullName.length<2){showToast('Please enter your full name.',true);return;}
+        if(!$scope.formData.email||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($scope.formData.email)){showToast('Please enter a valid email.',true);return;}
+        if(!$scope.formData.institution){showToast('Please enter your institution.',true);return;}
+        if(!$scope.formData.participationType){showToast('Please select a participation type.',true);return;}
+        $scope.currentStep=2;
+      };
+      $scope.goToStep3 = function() {
+        $scope.step2Attempted=true;
+        if($scope.selectedCount()===0){showToast('Please select at least one session.',true);return;}
+        $scope.currentStep=3;
+      };
+      $scope.submitForm = function() {
+        if($scope.selectedCount()===0){showToast('No sessions selected!',true);return;}
+        $scope.ajaxState='loading';
+        var payload=buildPayload();
+        RegistrationService.submit(payload)
+          .then(function(r){$scope.ajaxState='success';$scope.savedConfId=payload.confirmationId;showToast('Registration submitted!');setTimeout(function(){$scope.$apply(function(){$scope.submitted=true;});},1000);})
+          .catch(function(){$scope.ajaxState='error';showToast('Submission failed. Try again.',true);});
+      };
+      $scope.resetForm = function() {
+        $scope.formData={confirmationId:genId(),fullName:'',email:'',phone:'',institution:'',participationType:'',tshirtSize:'',networking:'',specialRequests:''};
+        for(var i=0;i<$scope.sessions.length;i++) $scope.sessions[i].selected=false;
+        for(var j=0;j<$scope.dietaryOpts.length;j++) $scope.dietaryOpts[j].selected=false;
+        $scope.currentStep=1;$scope.ajaxState=null;$scope.submitted=false;$scope.step1Attempted=false;$scope.step2Attempted=false;
+      };
+    }]);
+  </script>
   <style>
-    [ng-cloak], [data-ng-cloak] { display:none !important; }
- 
-    :root {
-      --navy:    #0d1b2a;
-      --navy2:   #1b2d45;
-      --gold:    #c9a84c;
-      --gold2:   #e8c76a;
-      --cream:   #f0ead6;
-      --muted:   #7a90b0;
-      --border:  rgba(201, 168, 76, 0.2);
-      --card:    rgba(27, 45, 69, 0.9);
-      --danger:  #f87171;
-      --success: #4ade80;
-    }
- 
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    body { font-family: 'Inter', sans-serif; background: var(--navy); color: var(--cream); line-height: 1.6; }
- 
-    /* ── NAVBAR ── */
-    .navbar {
-      background: rgba(13,27,42,0.97) !important;
-      border-bottom: 1px solid var(--border);
-      padding: 1rem 0; position: sticky; top: 0; z-index: 999;
-      backdrop-filter: blur(10px);
-    }
-    .navbar-brand {
-      font-family: 'Playfair Display', serif; font-size: 1.4rem;
-      color: var(--gold) !important; display: flex; align-items: center; gap: 8px; text-decoration: none;
-    }
-    .dot { width:8px; height:8px; background:var(--gold); border-radius:50%; animation:blink 2s infinite; flex-shrink:0; }
-    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.3} }
-    .nav-link { font-size:0.8rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted) !important; transition:color 0.2s; text-decoration:none; }
-    .nav-link:hover, .nav-link.active { color:var(--gold) !important; }
- 
-    /* ── PAGE HEADER ── */
-    .page-head { padding: 4rem 0 2.5rem; border-bottom: 1px solid var(--border); }
-    .eyebrow { font-size:0.7rem; letter-spacing:4px; text-transform:uppercase; color:var(--gold); margin-bottom:0.5rem; }
-    .sec-title { font-family:'Playfair Display',serif; font-size:clamp(1.8rem,4vw,2.8rem); font-weight:400; color:#fff; margin-bottom:0.75rem; }
-    .divider { width:50px; height:1px; background:var(--gold); margin-bottom:1.25rem; }
-    .star { color:var(--gold); }
-    .section { padding: 4rem 0; }
- 
-    /* ── FORM CARD ── */
-    .form-card { background:var(--card); border:1px solid var(--border); border-radius:6px; padding:2.5rem; }
-    .form-label { font-size:0.7rem; letter-spacing:1.5px; text-transform:uppercase; color:var(--muted); margin-bottom:0.35rem; display:block; }
-    .form-control, .form-select {
-      background: rgba(255,255,255,0.04) !important; border: 1px solid rgba(255,255,255,0.1) !important;
-      color: #fff !important; border-radius:3px; padding:0.7rem 0.9rem; font-size:0.9rem; transition:all 0.2s; width:100%;
-    }
-    .form-control::placeholder { color: rgba(255,255,255,0.18) !important; }
-    .form-control:focus, .form-select:focus {
-      border-color: var(--gold) !important; box-shadow: 0 0 0 3px rgba(201,168,76,0.1) !important;
-      outline:none; background: rgba(255,255,255,0.06) !important;
-    }
-    .form-control.ng-valid.ng-dirty   { border-color: var(--success) !important; }
-    .form-control.ng-invalid.ng-dirty { border-color: var(--danger)  !important; }
-    .form-select.ng-invalid.ng-dirty  { border-color: var(--danger)  !important; }
-    .form-control[readonly] { opacity:0.5; cursor:not-allowed; }
-    .form-select option { background: var(--navy2); }
-    .field-error { font-size:0.73rem; color:var(--danger); margin-top:0.3rem; }
- 
-    /* ── OPTIONS ── */
-    .option-group { display:flex; flex-direction:column; gap:0.6rem; }
-    .option-item {
-      display:flex; align-items:center; gap:0.75rem;
-      background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08);
-      border-radius:3px; padding:0.7rem 1rem; cursor:pointer; transition:all 0.2s;
-    }
-    .option-item:hover { border-color:var(--gold); background:rgba(201,168,76,0.06); }
-    .option-item.selected { border-color:var(--gold); background:rgba(201,168,76,0.1); }
-    .option-item input[type="radio"],
-    .option-item input[type="checkbox"] { accent-color:var(--gold); width:16px; height:16px; flex-shrink:0; cursor:pointer; }
-    .option-label { font-size:0.88rem; color:var(--cream); flex:1; }
-    .option-badge {
-      font-size:0.55rem; letter-spacing:1.5px; text-transform:uppercase;
-      background:rgba(201,168,76,0.15); color:var(--gold); padding:2px 7px; border-radius:2px; white-space:nowrap;
-    }
- 
-    /* ── SEARCH ── */
-    .search-wrap { position:relative; margin-bottom:1rem; }
-    .search-clear { position:absolute; right:12px; top:50%; transform:translateY(-50%); color:var(--muted); cursor:pointer; font-size:1rem; display:none; }
- 
-    /* ── BUTTONS ── */
-    .btn-gold {
-      background:var(--gold); color:var(--navy); border:none;
-      font-size:0.75rem; font-weight:700; letter-spacing:2px; text-transform:uppercase;
-      padding:0.85rem 2rem; border-radius:2px; cursor:pointer; transition:all 0.2s;
-    }
-    .btn-gold:hover { background:var(--gold2); transform:translateY(-1px); }
-    .btn-gold[disabled] { opacity:0.5; cursor:not-allowed; transform:none; }
-    .btn-outline {
-      background:transparent; color:var(--muted); border:1px solid rgba(255,255,255,0.1);
-      font-size:0.75rem; font-weight:600; letter-spacing:2px; text-transform:uppercase;
-      padding:0.82rem 1.5rem; border-radius:2px; cursor:pointer; transition:all 0.2s;
-    }
-    .btn-outline:hover { color:#fff; border-color:rgba(255,255,255,0.25); }
- 
-    /* ── STEPS ── */
-    .steps { display:flex; align-items:center; margin-bottom:2.5rem; }
-    .step { display:flex; align-items:center; gap:0.5rem; }
-    .step-num {
-      width:28px; height:28px; border-radius:50%; border:1px solid var(--border);
-      display:flex; align-items:center; justify-content:center; font-size:0.72rem; color:var(--muted); flex-shrink:0;
-    }
-    .step.active .step-num { border-color:var(--gold); background:var(--gold); color:var(--navy); font-weight:700; }
-    .step.done .step-num   { border-color:var(--success); background:rgba(74,222,128,0.15); color:var(--success); }
-    .step-label { font-size:0.68rem; letter-spacing:1px; text-transform:uppercase; color:var(--muted); }
-    .step.active .step-label { color:var(--gold); }
-    .step.done .step-label   { color:var(--success); }
-    .step-line { flex:1; height:1px; background:var(--border); margin:0 0.75rem; }
- 
-    /* ── SUMMARY ── */
-    .summary-card {
-      background: linear-gradient(135deg, rgba(201,168,76,0.06), rgba(27,45,69,0.95));
-      border:1px solid var(--gold); border-radius:6px; padding:2rem;
-    }
-    .summary-row { display:flex; justify-content:space-between; align-items:baseline; padding:0.55rem 0; border-bottom:1px solid var(--border); font-size:0.85rem; }
-    .summary-row:last-child { border-bottom:none; }
-    .summary-label { color:var(--muted); font-size:0.72rem; text-transform:uppercase; letter-spacing:1px; }
-    .summary-value { color:var(--cream); text-align:right; max-width:60%; }
-    .conf-id-text { font-family:'Playfair Display',serif; font-size:1rem; color:var(--gold); }
- 
-    /* ── JSON BOX ── */
-    .json-box {
-      background:rgba(0,0,0,0.35); border:1px solid var(--border); border-radius:4px;
-      padding:1rem; font-family:monospace; font-size:0.75rem; color:var(--gold2);
-      overflow-x:auto; white-space:pre; max-height:260px; overflow-y:auto;
-    }
- 
-    /* ── AJAX STATUS ── */
-    .ajax-status { border-radius:3px; padding:0.75rem 1rem; font-size:0.82rem; margin-top:0.75rem; }
-    .ajax-loading { background:rgba(201,168,76,0.08); border:1px solid var(--border); color:var(--muted); }
-    .ajax-success { background:rgba(74,222,128,0.1); border:1px solid rgba(74,222,128,0.3); color:var(--success); }
-    .ajax-error   { background:rgba(248,113,113,0.1); border:1px solid rgba(248,113,113,0.3); color:var(--danger); }
- 
-    /* ── SUCCESS SCREEN ── */
-    .success-screen { text-align:center; padding:4rem 2rem; animation:pop 0.4s ease; }
-    @keyframes pop { from{opacity:0;transform:translateY(20px)} to{opacity:1;transform:none} }
-    .success-icon { font-size:3rem; margin-bottom:1rem; }
-    .success-title { font-family:'Playfair Display',serif; font-size:2rem; color:#fff; font-weight:400; margin-bottom:0.5rem; }
- 
-    /* ── SIDEBAR ── */
-    .sidebar-card { background:var(--card); border:1px solid var(--border); border-radius:6px; padding:1.5rem; position:sticky; top:90px; }
-    .sidebar-title { font-family:'Playfair Display',serif; color:var(--gold); font-size:1rem; margin-bottom:1rem; }
- 
-    /* ── TOAST ── */
-    .toast-wrap { position:fixed; top:76px; right:1.25rem; z-index:9999; display:flex; flex-direction:column; gap:0.6rem; }
-    .toast-msg {
-      background:#1a2d50; border:1px solid var(--border); border-left:3px solid var(--gold);
-      border-radius:3px; padding:0.85rem 1.25rem; font-size:0.83rem; color:#fff;
-      min-width:240px; display:flex; gap:0.6rem; animation:tin 0.3s ease;
-    }
-    .toast-msg.err { border-left-color:var(--danger); }
-    @keyframes tin  { from{transform:translateX(110%);opacity:0} to{transform:none;opacity:1} }
-    @keyframes tout { from{transform:none;opacity:1} to{transform:translateX(110%);opacity:0} }
-    .toast-msg.out  { animation:tout 0.3s ease forwards; }
- 
-    /* ── FOOTER ── */
-    footer { background:var(--navy2); border-top:1px solid var(--border); padding:2rem 0; text-align:center; }
-    footer .brand { font-family:'Playfair Display',serif; font-size:1.3rem; color:var(--gold); }
-    footer p { font-size:0.78rem; color:var(--muted); margin-top:0.25rem; }
- 
-    @media (max-width:768px) {
-      .form-card { padding:1.5rem 1.25rem; }
-      .sidebar-card { position:static; margin-top:2rem; }
-      .steps { flex-wrap:wrap; gap:0.5rem; }
-    }
+    [ng-cloak],[data-ng-cloak]{display:none !important;}
+    :root{--navy:#0d1b2a;--navy2:#1b2d45;--gold:#c9a84c;--gold2:#e8c76a;--cream:#f0ead6;--muted:#7a90b0;--border:rgba(201,168,76,0.2);--card:rgba(27,45,69,0.9);--danger:#f87171;--success:#4ade80;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--cream);line-height:1.6;}
+    .navbar{background:rgba(13,27,42,0.97)!important;border-bottom:1px solid var(--border);padding:1rem 0;position:sticky;top:0;z-index:999;backdrop-filter:blur(10px);}
+    .navbar-brand{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold)!important;display:flex;align-items:center;gap:8px;text-decoration:none;}
+    .dot{width:8px;height:8px;background:var(--gold);border-radius:50%;animation:blink 2s infinite;flex-shrink:0;}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+    .nav-link{font-size:0.8rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)!important;transition:color 0.2s;text-decoration:none;}
+    .nav-link:hover,.nav-link.active{color:var(--gold)!important;}
+    .page-head{padding:4rem 0 2.5rem;border-bottom:1px solid var(--border);}
+    .eyebrow{font-size:0.7rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:0.5rem;}
+    .sec-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:400;color:#fff;margin-bottom:0.75rem;}
+    .divider{width:50px;height:1px;background:var(--gold);margin-bottom:1.25rem;}
+    .star{color:var(--gold);}
+    .section{padding:4rem 0;}
+    .form-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:2.5rem;}
+    .form-label{font-size:0.7rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted);margin-bottom:0.35rem;display:block;}
+    .form-control,.form-select{background:rgba(255,255,255,0.04)!important;border:1px solid rgba(255,255,255,0.1)!important;color:#fff!important;border-radius:3px;padding:0.7rem 0.9rem;font-size:0.9rem;transition:all 0.2s;width:100%;}
+    .form-control::placeholder{color:rgba(255,255,255,0.18)!important;}
+    .form-control:focus,.form-select:focus{border-color:var(--gold)!important;box-shadow:0 0 0 3px rgba(201,168,76,0.1)!important;outline:none;background:rgba(255,255,255,0.06)!important;}
+    .form-control.ng-valid.ng-dirty{border-color:var(--success)!important;}
+    .form-control.ng-invalid.ng-dirty{border-color:var(--danger)!important;}
+    .form-control[readonly]{opacity:0.5;cursor:not-allowed;}
+    .form-select option{background:var(--navy2);}
+    .field-error{font-size:0.73rem;color:var(--danger);margin-top:0.3rem;}
+    .option-group{display:flex;flex-direction:column;gap:0.6rem;}
+    .option-item{display:flex;align-items:center;gap:0.75rem;background:rgba(255,255,255,0.03);border:1px solid rgba(255,255,255,0.08);border-radius:3px;padding:0.7rem 1rem;cursor:pointer;transition:all 0.2s;}
+    .option-item:hover{border-color:var(--gold);background:rgba(201,168,76,0.06);}
+    .option-item.selected{border-color:var(--gold);background:rgba(201,168,76,0.1);}
+    .option-item input[type="radio"],.option-item input[type="checkbox"]{accent-color:var(--gold);width:16px;height:16px;flex-shrink:0;cursor:pointer;}
+    .option-label{font-size:0.88rem;color:var(--cream);flex:1;}
+    .option-sub{font-size:0.75rem;color:var(--muted);margin-top:2px;}
+    .option-badge{font-size:0.55rem;letter-spacing:1.5px;text-transform:uppercase;background:rgba(201,168,76,0.15);color:var(--gold);padding:2px 7px;border-radius:2px;white-space:nowrap;}
+    .search-wrap{position:relative;margin-bottom:1rem;}
+    .search-clear{position:absolute;right:12px;top:50%;transform:translateY(-50%);color:var(--muted);cursor:pointer;font-size:1rem;display:none;}
+    .btn-gold{background:var(--gold);color:var(--navy);border:none;font-size:0.75rem;font-weight:700;letter-spacing:2px;text-transform:uppercase;padding:0.85rem 2rem;border-radius:2px;cursor:pointer;transition:all 0.2s;}
+    .btn-gold:hover{background:var(--gold2);transform:translateY(-1px);}
+    .btn-gold[disabled]{opacity:0.5;cursor:not-allowed;transform:none;}
+    .btn-outline{background:transparent;color:var(--muted);border:1px solid rgba(255,255,255,0.1);font-size:0.75rem;font-weight:600;letter-spacing:2px;text-transform:uppercase;padding:0.82rem 1.5rem;border-radius:2px;cursor:pointer;transition:all 0.2s;}
+    .btn-outline:hover{color:#fff;border-color:rgba(255,255,255,0.25);}
+    .steps{display:flex;align-items:center;margin-bottom:2.5rem;}
+    .step{display:flex;align-items:center;gap:0.5rem;}
+    .step-num{width:28px;height:28px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:0.72rem;color:var(--muted);flex-shrink:0;transition:all 0.3s;}
+    .step.active .step-num{border-color:var(--gold);background:var(--gold);color:var(--navy);font-weight:700;}
+    .step.done .step-num{border-color:var(--success);background:rgba(74,222,128,0.15);color:var(--success);}
+    .step-label{font-size:0.68rem;letter-spacing:1px;text-transform:uppercase;color:var(--muted);}
+    .step.active .step-label{color:var(--gold);}
+    .step.done .step-label{color:var(--success);}
+    .step-line{flex:1;height:1px;background:var(--border);margin:0 0.75rem;}
+    .summary-card{background:linear-gradient(135deg,rgba(201,168,76,0.06),rgba(27,45,69,0.95));border:1px solid var(--gold);border-radius:6px;padding:2rem;}
+    .summary-row{display:flex;justify-content:space-between;align-items:baseline;padding:0.55rem 0;border-bottom:1px solid var(--border);font-size:0.85rem;}
+    .summary-row:last-child{border-bottom:none;}
+    .summary-label{color:var(--muted);font-size:0.72rem;text-transform:uppercase;letter-spacing:1px;}
+    .summary-value{color:var(--cream);text-align:right;max-width:65%;}
+    .conf-id-val{font-family:'Playfair Display',serif;font-size:1rem;color:var(--gold);}
+    .json-box{background:rgba(0,0,0,0.35);border:1px solid var(--border);border-radius:4px;padding:1rem;font-family:monospace;font-size:0.75rem;color:var(--gold2);white-space:pre;overflow-x:auto;max-height:260px;overflow-y:auto;}
+    .ajax-status{border-radius:3px;padding:0.75rem 1rem;font-size:0.82rem;margin-top:0.75rem;}
+    .s-loading{background:rgba(201,168,76,0.08);border:1px solid var(--border);color:var(--muted);}
+    .s-success{background:rgba(74,222,128,0.1);border:1px solid rgba(74,222,128,0.3);color:var(--success);}
+    .s-error{background:rgba(248,113,113,0.1);border:1px solid rgba(248,113,113,0.3);color:var(--danger);}
+    .success-screen{text-align:center;padding:4rem 2rem;animation:fadeup 0.4s ease;}
+    @keyframes fadeup{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:none}}
+    .success-title{font-family:'Playfair Display',serif;font-size:2rem;color:#fff;font-weight:400;}
+    .sidebar-card{background:var(--card);border:1px solid var(--border);border-radius:6px;padding:1.5rem;position:sticky;top:90px;}
+    .sidebar-title{font-family:'Playfair Display',serif;color:var(--gold);font-size:1rem;margin-bottom:1rem;}
+    .toast-wrap{position:fixed;top:76px;right:1.25rem;z-index:9999;display:flex;flex-direction:column;gap:0.6rem;}
+    .toast-msg{background:#1a2d50;border:1px solid var(--border);border-left:3px solid var(--gold);border-radius:3px;padding:0.85rem 1.25rem;font-size:0.83rem;color:#fff;min-width:240px;display:flex;gap:0.6rem;animation:tin 0.3s ease;}
+    .toast-msg.err{border-left-color:var(--danger);}
+    @keyframes tin{from{transform:translateX(110%);opacity:0}to{transform:none;opacity:1}}
+    @keyframes tout{from{transform:none;opacity:1}to{transform:translateX(110%);opacity:0}}
+    .toast-msg.out{animation:tout 0.3s ease forwards;}
+    footer{background:var(--navy2);border-top:1px solid var(--border);padding:2rem 0;text-align:center;}
+    footer .brand{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold);}
+    footer p{font-size:0.78rem;color:var(--muted);margin-top:0.25rem;}
+    @media(max-width:768px){.form-card{padding:1.5rem 1.25rem;}.sidebar-card{position:static;margin-top:2rem;}.steps{flex-wrap:wrap;gap:0.5rem;}}
   </style>
 </head>
- 
 <body ng-controller="FinalizeCtrl">
- 
   <div class="toast-wrap" id="toasts"></div>
  
-  <!-- NAVBAR -->
   <nav class="navbar navbar-expand-lg">
     <div class="container">
-      <a class="navbar-brand" href="index.html">
-        <span class="dot"></span>
-        TechSummit <em style="font-style:italic;color:var(--gold2)">2026</em>
-      </a>
+      <a class="navbar-brand" href="index.html"><span class="dot"></span>TechSummit <em style="font-style:italic;color:var(--gold2)">2026</em></a>
       <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
         <span style="color:var(--gold);font-size:1.3rem">☰</span>
       </button>
@@ -211,310 +176,217 @@
     </div>
   </nav>
  
-  <!-- PAGE HEADER -->
   <div class="page-head">
     <div class="container">
       <p class="eyebrow">Options &amp; Finalization</p>
       <h1 class="sec-title">Confirm Your <em style="font-style:italic;color:var(--gold)">Registration</em></h1>
       <div class="divider"></div>
-      <p style="color:var(--muted);font-size:0.9rem;max-width:560px;">
-        Complete your registration by selecting sessions, participation type, and preferences.
-        Your choices are stored as JSON and submitted via AJAX.
-      </p>
+      <p style="color:var(--muted);font-size:0.9rem;max-width:560px;">Complete your registration by choosing sessions, participation type, and preferences. Your data is stored as JSON and submitted via AJAX.</p>
     </div>
   </div>
  
-  <!-- MAIN -->
   <section class="section">
     <div class="container">
  
-      <!-- Progress Steps -->
       <div class="steps mb-4">
-        <div class="step" ng-class="{active: currentStep===1, done: currentStep>1}">
-          <div class="step-num">{{ currentStep > 1 ? '✓' : '1' }}</div>
+        <div class="step" ng-class="{active:currentStep===1,done:currentStep>1}">
+          <div class="step-num">{{currentStep>1?'&#10003;':'1'}}</div>
           <span class="step-label" style="margin-left:6px;">Your Info</span>
         </div>
         <div class="step-line"></div>
-        <div class="step" ng-class="{active: currentStep===2, done: currentStep>2}">
-          <div class="step-num">{{ currentStep > 2 ? '✓' : '2' }}</div>
+        <div class="step" ng-class="{active:currentStep===2,done:currentStep>2}">
+          <div class="step-num">{{currentStep>2?'&#10003;':'2'}}</div>
           <span class="step-label" style="margin-left:6px;">Sessions</span>
         </div>
         <div class="step-line"></div>
-        <div class="step" ng-class="{active: currentStep===3, done: currentStep>3}">
-          <div class="step-num">{{ currentStep > 3 ? '✓' : '3' }}</div>
+        <div class="step" ng-class="{active:currentStep===3,done:currentStep>3}">
+          <div class="step-num">{{currentStep>3?'&#10003;':'3'}}</div>
           <span class="step-label" style="margin-left:6px;">Preferences</span>
         </div>
         <div class="step-line"></div>
-        <div class="step" ng-class="{active: currentStep===4, done: submitted}">
-          <div class="step-num">{{ submitted ? '✓' : '4' }}</div>
+        <div class="step" ng-class="{active:currentStep===4,done:submitted}">
+          <div class="step-num">{{submitted?'&#10003;':'4'}}</div>
           <span class="step-label" style="margin-left:6px;">Confirm</span>
         </div>
       </div>
  
-      <!-- SUCCESS SCREEN -->
       <div ng-if="submitted" class="success-screen">
-        <div class="success-icon">🎉</div>
+        <div style="font-size:3rem;margin-bottom:1rem;">&#127881;</div>
         <h2 class="success-title">Registration Confirmed!</h2>
-        <p style="color:var(--muted);margin-bottom:1.5rem;">Your registration has been submitted successfully.</p>
+        <p style="color:var(--muted);margin:0.5rem 0 1.5rem;">Your registration has been submitted successfully.</p>
         <div style="background:rgba(201,168,76,0.08);border:1px solid var(--gold);border-radius:6px;padding:1.5rem;display:inline-block;margin-bottom:2rem;">
           <p style="font-size:0.7rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:0.4rem;">Confirmation ID</p>
-          <p style="font-family:'Playfair Display',serif;font-size:1.6rem;color:#fff;">{{ savedConfirmationId }}</p>
+          <p style="font-family:'Playfair Display',serif;font-size:1.6rem;color:#fff;">{{savedConfId}}</p>
         </div>
         <br>
         <a href="index.html" class="btn-gold" style="text-decoration:none;">Back to Homepage</a>
       </div>
  
-      <!-- FORM (hidden after submit) -->
       <div ng-if="!submitted">
         <div class="row g-5">
- 
-          <!-- LEFT: FORM -->
           <div class="col-lg-8">
             <form name="finalizeForm" ng-submit="submitForm()" novalidate>
  
-              <!-- ═══ STEP 1: Personal Info ═══ -->
-              <div ng-show="currentStep === 1">
+              <!-- STEP 1 -->
+              <div ng-show="currentStep===1">
                 <p class="eyebrow">Step 1 of 4</p>
                 <h2 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:#fff;font-weight:400;margin-bottom:1.5rem;">Your Information</h2>
                 <div class="form-card">
- 
                   <div class="mb-4">
                     <label class="form-label">Confirmation ID <span style="color:var(--muted);font-size:0.62rem">(Auto-generated)</span></label>
                     <input type="text" class="form-control" ng-model="formData.confirmationId" readonly />
                   </div>
- 
                   <div class="row g-3 mb-3">
                     <div class="col-md-6">
-                      <label class="form-label">Full Name <span class="star">★</span></label>
-                      <input type="text" class="form-control" name="fullName"
-                        ng-model="formData.fullName" required minlength="2"
-                        placeholder="e.g. Jordan Rivera" />
-                      <div class="field-error" ng-show="finalizeForm.fullName.$dirty && finalizeForm.fullName.$error.required">
-                        Full name is required.
-                      </div>
-                      <div class="field-error" ng-show="finalizeForm.fullName.$dirty && finalizeForm.fullName.$error.minlength">
-                        Must be at least 2 characters.
-                      </div>
+                      <label class="form-label">Full Name <span class="star">&#9733;</span></label>
+                      <input type="text" class="form-control" name="fullName" ng-model="formData.fullName" required minlength="2" placeholder="e.g. Jordan Rivera" />
+                      <div class="field-error" ng-show="finalizeForm.fullName.$dirty && finalizeForm.fullName.$error.required">Full name is required.</div>
+                      <div class="field-error" ng-show="finalizeForm.fullName.$dirty && finalizeForm.fullName.$error.minlength">Must be at least 2 characters.</div>
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">Email Address <span class="star">★</span></label>
-                      <input type="email" class="form-control" name="email"
-                        ng-model="formData.email" required
-                        placeholder="you@university.edu" />
-                      <div class="field-error" ng-show="finalizeForm.email.$dirty && finalizeForm.email.$error.required">
-                        Email is required.
-                      </div>
-                      <div class="field-error" ng-show="finalizeForm.email.$dirty && finalizeForm.email.$error.email">
-                        Enter a valid email address.
-                      </div>
+                      <label class="form-label">Email Address <span class="star">&#9733;</span></label>
+                      <input type="email" class="form-control" name="email" ng-model="formData.email" required placeholder="you@university.edu" />
+                      <div class="field-error" ng-show="finalizeForm.email.$dirty && finalizeForm.email.$error.required">Email is required.</div>
+                      <div class="field-error" ng-show="finalizeForm.email.$dirty && finalizeForm.email.$error.email">Enter a valid email address.</div>
                     </div>
                     <div class="col-md-6">
                       <label class="form-label">Phone <span style="color:var(--muted);font-size:0.62rem">(Optional)</span></label>
                       <input type="tel" class="form-control" ng-model="formData.phone" placeholder="215-555-0198" />
                     </div>
                     <div class="col-md-6">
-                      <label class="form-label">Institution / Organization <span class="star">★</span></label>
-                      <input type="text" class="form-control" name="institution"
-                        ng-model="formData.institution" required
-                        placeholder="Penn State University" />
-                      <div class="field-error" ng-show="finalizeForm.institution.$dirty && finalizeForm.institution.$error.required">
-                        Institution is required.
-                      </div>
+                      <label class="form-label">Institution / Organization <span class="star">&#9733;</span></label>
+                      <input type="text" class="form-control" name="institution" ng-model="formData.institution" required placeholder="Penn State University" />
+                      <div class="field-error" ng-show="finalizeForm.institution.$dirty && finalizeForm.institution.$error.required">Institution is required.</div>
                     </div>
                   </div>
- 
                   <div class="mb-4">
-                    <label class="form-label">Participation Type <span class="star">★</span></label>
+                    <label class="form-label">Participation Type <span class="star">&#9733;</span></label>
                     <div class="option-group">
-                      <label class="option-item" ng-class="{selected: formData.participationType === 'In-Person'}">
+                      <label class="option-item" ng-class="{selected:formData.participationType==='In-Person'}">
                         <input type="radio" ng-model="formData.participationType" value="In-Person" />
-                        <div class="option-label">
-                          <strong>In-Person</strong>
-                          <div style="font-size:0.78rem;color:var(--muted);">Attend all 3 days at Pennsylvania Convention Center</div>
-                        </div>
+                        <div class="option-label"><strong>In-Person</strong><div class="option-sub">Attend all 3 days at Pennsylvania Convention Center</div></div>
                         <span class="option-badge">Philadelphia, PA</span>
                       </label>
-                      <label class="option-item" ng-class="{selected: formData.participationType === 'Virtual'}">
+                      <label class="option-item" ng-class="{selected:formData.participationType==='Virtual'}">
                         <input type="radio" ng-model="formData.participationType" value="Virtual" />
-                        <div class="option-label">
-                          <strong>Virtual</strong>
-                          <div style="font-size:0.78rem;color:var(--muted);">Live streams + recordings via online platform</div>
-                        </div>
+                        <div class="option-label"><strong>Virtual</strong><div class="option-sub">Live streams + recordings via online platform</div></div>
                         <span class="option-badge">Online</span>
                       </label>
-                      <label class="option-item" ng-class="{selected: formData.participationType === 'VIP'}">
+                      <label class="option-item" ng-class="{selected:formData.participationType==='VIP'}">
                         <input type="radio" ng-model="formData.participationType" value="VIP" />
-                        <div class="option-label">
-                          <strong>VIP</strong>
-                          <div style="font-size:0.78rem;color:var(--muted);">In-person + speaker dinners, backstage access</div>
-                        </div>
+                        <div class="option-label"><strong>VIP</strong><div class="option-sub">In-person + speaker dinners and backstage access</div></div>
                         <span class="option-badge" style="background:rgba(201,168,76,0.3);">Premium</span>
                       </label>
                     </div>
-                    <div class="field-error" ng-show="step1Attempted && !formData.participationType">
-                      Please select a participation type.
-                    </div>
+                    <div class="field-error" ng-show="step1Attempted && !formData.participationType">Please select a participation type.</div>
                   </div>
- 
                   <div class="d-flex gap-3 mt-4">
-                    <button type="button" class="btn-gold" ng-click="goToStep2()">Next: Choose Sessions →</button>
+                    <button type="button" class="btn-gold" ng-click="goToStep2()">Next: Choose Sessions &#8594;</button>
                   </div>
                 </div>
               </div>
  
-              <!-- ═══ STEP 2: Session Selection ═══ -->
-              <div ng-show="currentStep === 2">
+              <!-- STEP 2 -->
+              <div ng-show="currentStep===2">
                 <p class="eyebrow">Step 2 of 4</p>
                 <h2 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:#fff;font-weight:400;margin-bottom:1.5rem;">Choose Sessions</h2>
                 <div class="form-card">
-                  <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1.25rem;">Select at least one session. Use search to filter options.</p>
- 
-                  <!-- jQuery search -->
+                  <p style="color:var(--muted);font-size:0.85rem;margin-bottom:1.25rem;">Select at least one session. Search is powered by jQuery.</p>
                   <div class="search-wrap">
-                    <input type="text" class="form-control" id="sessionSearch" placeholder="Search sessions..." autocomplete="off" />
-                    <span class="search-clear" id="clearSessionSearch">✕</span>
+                    <input type="text" class="form-control" id="sessionSearch" placeholder="Search sessions by title or category..." autocomplete="off" />
+                    <span class="search-clear" id="clearSessionSearch">&#10005;</span>
                   </div>
- 
-                  <!-- AngularJS ng-repeat over sessions -->
                   <div class="option-group" id="sessionList">
-                    <label class="option-item session-opt"
-                      ng-repeat="session in availableSessions"
-                      ng-class="{selected: session.selected}">
-                      <input type="checkbox" ng-model="session.selected" />
+                    <label class="option-item sess-item" ng-repeat="s in sessions track by $index" ng-class="{selected:s.selected}">
+                      <input type="checkbox" ng-model="s.selected" />
                       <div class="option-label">
-                        <strong>{{ session.title }}</strong>
-                        <div style="font-size:0.75rem;color:var(--muted);">{{ session.category }} &nbsp;·&nbsp; {{ session.time }} &nbsp;·&nbsp; {{ session.duration }}</div>
+                        <strong>{{s.title}}</strong>
+                        <div class="option-sub">{{s.category}} &nbsp;&#183;&nbsp; {{s.time}} &nbsp;&#183;&nbsp; {{s.duration}}</div>
                       </div>
-                      <span class="option-badge">{{ session.price }}</span>
+                      <span class="option-badge">{{s.price}}</span>
                     </label>
                   </div>
- 
-                  <div class="field-error" ng-show="step2Attempted && selectedCount() === 0">
-                    Please select at least one session.
-                  </div>
-                  <div style="font-size:0.8rem;color:var(--muted);margin-top:0.75rem;">
-                    {{ selectedCount() }} session(s) selected
-                  </div>
- 
+                  <div class="field-error" ng-show="step2Attempted && selectedCount()===0">Please select at least one session.</div>
+                  <div style="font-size:0.8rem;color:var(--muted);margin-top:0.75rem;">{{selectedCount()}} session(s) selected</div>
                   <div class="d-flex gap-3 mt-4">
-                    <button type="button" class="btn-outline" ng-click="currentStep = 1">← Back</button>
-                    <button type="button" class="btn-gold" ng-click="goToStep3()">Next: Preferences →</button>
+                    <button type="button" class="btn-outline" ng-click="goStep(1)">&#8592; Back</button>
+                    <button type="button" class="btn-gold" ng-click="goToStep3()">Next: Preferences &#8594;</button>
                   </div>
                 </div>
               </div>
  
-              <!-- ═══ STEP 3: Preferences ═══ -->
-              <div ng-show="currentStep === 3">
+              <!-- STEP 3 -->
+              <div ng-show="currentStep===3">
                 <p class="eyebrow">Step 3 of 4</p>
                 <h2 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:#fff;font-weight:400;margin-bottom:1.5rem;">Additional Preferences</h2>
                 <div class="form-card">
- 
                   <div class="mb-4">
                     <label class="form-label">Dietary / Accessibility Needs <span style="color:var(--muted);font-size:0.62rem">(Optional)</span></label>
                     <div class="option-group">
-                      <label class="option-item" ng-repeat="opt in dietaryOptions" ng-class="{selected: opt.selected}">
+                      <label class="option-item" ng-repeat="opt in dietaryOpts" ng-class="{selected:opt.selected}">
                         <input type="checkbox" ng-model="opt.selected" />
-                        <span class="option-label">{{ opt.label }}</span>
+                        <span class="option-label">{{opt.label}}</span>
                       </label>
                     </div>
                   </div>
- 
                   <div class="mb-4">
                     <label class="form-label">T-Shirt Size <span style="color:var(--muted);font-size:0.62rem">(Optional)</span></label>
                     <select class="form-select" ng-model="formData.tshirtSize">
                       <option value="">No preference</option>
-                      <option value="XS">XS</option>
-                      <option value="S">S</option>
-                      <option value="M">M</option>
-                      <option value="L">L</option>
-                      <option value="XL">XL</option>
-                      <option value="XXL">XXL</option>
+                      <option value="XS">XS</option><option value="S">S</option>
+                      <option value="M">M</option><option value="L">L</option>
+                      <option value="XL">XL</option><option value="XXL">XXL</option>
                     </select>
                   </div>
- 
                   <div class="mb-4">
                     <label class="form-label">Interested in Networking Events?</label>
                     <div class="option-group">
-                      <label class="option-item" ng-class="{selected: formData.networking === 'Yes'}">
+                      <label class="option-item" ng-class="{selected:formData.networking==='Yes'}">
                         <input type="radio" ng-model="formData.networking" value="Yes" />
-                        <span class="option-label">Yes — add me to the networking list</span>
+                        <span class="option-label">Yes &#8212; add me to the networking list</span>
                       </label>
-                      <label class="option-item" ng-class="{selected: formData.networking === 'No'}">
+                      <label class="option-item" ng-class="{selected:formData.networking==='No'}">
                         <input type="radio" ng-model="formData.networking" value="No" />
                         <span class="option-label">No thanks</span>
                       </label>
                     </div>
                   </div>
- 
                   <div class="mb-4">
                     <label class="form-label">Special Requests / Notes <span style="color:var(--muted);font-size:0.62rem">(Optional)</span></label>
-                    <textarea class="form-control" ng-model="formData.specialRequests" rows="3"
-                      placeholder="Any other requests for the organizers..."></textarea>
+                    <textarea class="form-control" ng-model="formData.specialRequests" rows="3" placeholder="Any other requests for the organizers..."></textarea>
                   </div>
- 
                   <div class="d-flex gap-3 mt-4">
-                    <button type="button" class="btn-outline" ng-click="currentStep = 2">← Back</button>
-                    <button type="button" class="btn-gold" ng-click="currentStep = 4">Next: Review &amp; Confirm →</button>
+                    <button type="button" class="btn-outline" ng-click="goStep(2)">&#8592; Back</button>
+                    <button type="button" class="btn-gold" ng-click="goStep(4)">Next: Review &amp; Confirm &#8594;</button>
                   </div>
                 </div>
               </div>
  
-              <!-- ═══ STEP 4: Review & Submit ═══ -->
-              <div ng-show="currentStep === 4">
+              <!-- STEP 4 -->
+              <div ng-show="currentStep===4">
                 <p class="eyebrow">Step 4 of 4</p>
                 <h2 style="font-family:'Playfair Display',serif;font-size:1.4rem;color:#fff;font-weight:400;margin-bottom:1.5rem;">Review &amp; Submit</h2>
- 
-                <!-- Summary -->
                 <div class="summary-card mb-4">
                   <p style="font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:1rem;">Registration Summary</p>
-                  <div class="summary-row">
-                    <span class="summary-label">Confirmation ID</span>
-                    <span class="conf-id-text">{{ formData.confirmationId }}</span>
-                  </div>
-                  <div class="summary-row">
-                    <span class="summary-label">Full Name</span>
-                    <span class="summary-value">{{ formData.fullName }}</span>
-                  </div>
-                  <div class="summary-row">
-                    <span class="summary-label">Email</span>
-                    <span class="summary-value">{{ formData.email }}</span>
-                  </div>
-                  <div class="summary-row">
-                    <span class="summary-label">Institution</span>
-                    <span class="summary-value">{{ formData.institution }}</span>
-                  </div>
-                  <div class="summary-row">
-                    <span class="summary-label">Participation Type</span>
-                    <span class="summary-value">{{ formData.participationType }}</span>
-                  </div>
-                  <div class="summary-row">
-                    <span class="summary-label">Sessions Selected</span>
-                    <span class="summary-value">{{ selectedCount() }} session(s)</span>
-                  </div>
-                  <div class="summary-row" ng-if="formData.tshirtSize">
-                    <span class="summary-label">T-Shirt Size</span>
-                    <span class="summary-value">{{ formData.tshirtSize }}</span>
-                  </div>
-                  <div class="summary-row">
-                    <span class="summary-label">Networking</span>
-                    <span class="summary-value">{{ formData.networking || 'Not specified' }}</span>
-                  </div>
+                  <div class="summary-row"><span class="summary-label">Confirmation ID</span><span class="conf-id-val">{{formData.confirmationId}}</span></div>
+                  <div class="summary-row"><span class="summary-label">Full Name</span><span class="summary-value">{{formData.fullName}}</span></div>
+                  <div class="summary-row"><span class="summary-label">Email</span><span class="summary-value">{{formData.email}}</span></div>
+                  <div class="summary-row"><span class="summary-label">Institution</span><span class="summary-value">{{formData.institution}}</span></div>
+                  <div class="summary-row"><span class="summary-label">Participation Type</span><span class="summary-value">{{formData.participationType}}</span></div>
+                  <div class="summary-row"><span class="summary-label">Sessions Selected</span><span class="summary-value">{{selectedCount()}} session(s)</span></div>
+                  <div class="summary-row" ng-if="formData.tshirtSize"><span class="summary-label">T-Shirt Size</span><span class="summary-value">{{formData.tshirtSize}}</span></div>
+                  <div class="summary-row"><span class="summary-label">Networking</span><span class="summary-value">{{formData.networking || 'Not specified'}}</span></div>
                 </div>
- 
-                <!-- JSON Document Preview -->
                 <div class="mb-4">
                   <p style="font-size:0.65rem;letter-spacing:3px;text-transform:uppercase;color:var(--gold);margin-bottom:0.5rem;">JSON Document</p>
-                  <div class="json-box">{{ getJsonPreview() }}</div>
+                  <div class="json-box">{{getJson()}}</div>
                 </div>
- 
-                <!-- AJAX Status -->
-                <div class="ajax-status ajax-loading" ng-show="ajaxState === 'loading'">⏳ Submitting your registration...</div>
-                <div class="ajax-status ajax-success" ng-show="ajaxState === 'success'">✓ Registration submitted successfully!</div>
-                <div class="ajax-status ajax-error"   ng-show="ajaxState === 'error'">✕ Submission failed. Please try again.</div>
- 
+                <div class="ajax-status s-loading" ng-show="ajaxState==='loading'">&#9203; Submitting your registration to the API...</div>
+                <div class="ajax-status s-success" ng-show="ajaxState==='success'">&#10003; Registration submitted successfully via AJAX!</div>
+                <div class="ajax-status s-error"   ng-show="ajaxState==='error'">&#10005; Submission failed. Please try again.</div>
                 <div class="d-flex gap-3 mt-4 flex-wrap">
-                  <button type="button" class="btn-outline" ng-click="currentStep = 3">← Back</button>
-                  <button type="submit" class="btn-gold" ng-disabled="ajaxState === 'loading'">Submit Registration via AJAX</button>
+                  <button type="button" class="btn-outline" ng-click="goStep(3)">&#8592; Back</button>
+                  <button type="submit" class="btn-gold" ng-disabled="ajaxState==='loading'">Submit Registration via AJAX</button>
                   <button type="button" class="btn-outline" ng-click="resetForm()">Start Over</button>
                 </div>
               </div>
@@ -522,257 +394,65 @@
             </form>
           </div>
  
-          <!-- RIGHT: SIDEBAR -->
           <div class="col-lg-4">
             <div class="sidebar-card">
               <p class="sidebar-title">Conference Details</p>
               <div style="display:flex;flex-direction:column;gap:0.75rem;font-size:0.85rem;color:var(--muted);margin-bottom:1.5rem;">
-                <div>🗓 &nbsp;<strong style="color:var(--cream)">April 18–20, 2026</strong></div>
-                <div>📍 &nbsp;<strong style="color:var(--cream)">Pennsylvania Convention Center</strong></div>
-                <div>🎟 &nbsp;<strong style="color:var(--success)">Open — Limited Seats</strong></div>
-                <div>💻 &nbsp;<strong style="color:var(--cream)">In-Person &amp; Virtual</strong></div>
+                <div>&#128197; &nbsp;<strong style="color:var(--cream)">April 18&#8211;20, 2026</strong></div>
+                <div>&#128205; &nbsp;<strong style="color:var(--cream)">Pennsylvania Convention Center</strong></div>
+                <div>&#127903; &nbsp;<strong style="color:var(--success)">Open &#8212; Limited Seats</strong></div>
+                <div>&#128187; &nbsp;<strong style="color:var(--cream)">In-Person &amp; Virtual</strong></div>
               </div>
- 
               <div style="border-top:1px solid var(--border);padding-top:1rem;">
                 <p class="sidebar-title">Your Progress</p>
                 <div style="font-size:0.82rem;color:var(--muted);display:flex;flex-direction:column;gap:0.5rem;">
-                  <div>
-                    <span style="color:var(--gold);">{{ formData.fullName ? '✓' : '○' }}</span>
-                    &nbsp; Personal info
-                  </div>
-                  <div>
-                    <span style="color:var(--gold);">{{ formData.participationType ? '✓' : '○' }}</span>
-                    &nbsp; Participation type
-                  </div>
-                  <div>
-                    <span style="color:var(--gold);">{{ selectedCount() > 0 ? '✓' : '○' }}</span>
-                    &nbsp; Sessions ({{ selectedCount() }} selected)
-                  </div>
-                  <div>
-                    <span style="color:var(--gold);">{{ currentStep === 4 ? '✓' : '○' }}</span>
-                    &nbsp; Ready to confirm
-                  </div>
+                  <div><span style="color:var(--gold)">{{formData.fullName ? '&#10003;' : '&#9675;'}}</span> &nbsp; Personal info</div>
+                  <div><span style="color:var(--gold)">{{formData.participationType ? '&#10003;' : '&#9675;'}}</span> &nbsp; Participation type</div>
+                  <div><span style="color:var(--gold)">{{selectedCount() > 0 ? '&#10003;' : '&#9675;'}}</span> &nbsp; Sessions ({{selectedCount()}} selected)</div>
+                  <div><span style="color:var(--gold)">{{currentStep === 4 ? '&#10003;' : '&#9675;'}}</span> &nbsp; Ready to confirm</div>
                 </div>
               </div>
- 
               <div style="border-top:1px solid var(--border);padding-top:1rem;margin-top:1rem;">
-                <p class="sidebar-title">What's Included</p>
+                <p class="sidebar-title">What&#8217;s Included</p>
                 <div style="font-size:0.82rem;color:var(--muted);display:flex;flex-direction:column;gap:0.35rem;">
-                  <div>✓ &nbsp;All 3 conference days</div>
-                  <div>✓ &nbsp;30+ sessions &amp; workshops</div>
-                  <div>✓ &nbsp;Speaker Q&amp;A &amp; panels</div>
-                  <div>✓ &nbsp;Networking reception</div>
-                  <div>✓ &nbsp;Conference materials</div>
-                  <div>✓ &nbsp;Virtual livestream access</div>
+                  <div>&#10003; &nbsp;All 3 conference days</div>
+                  <div>&#10003; &nbsp;30+ sessions &amp; workshops</div>
+                  <div>&#10003; &nbsp;Speaker Q&amp;A &amp; panels</div>
+                  <div>&#10003; &nbsp;Networking reception</div>
+                  <div>&#10003; &nbsp;Conference materials</div>
+                  <div>&#10003; &nbsp;Virtual livestream access</div>
                 </div>
               </div>
             </div>
           </div>
- 
         </div>
       </div>
     </div>
   </section>
  
-  <!-- FOOTER -->
   <footer>
     <div class="container">
       <p class="brand">TechSummit <em style="font-style:italic">2026</em></p>
-      <p>Philadelphia, PA &nbsp;·&nbsp; April 18–20 &nbsp;·&nbsp; In-Person &amp; Virtual</p>
+      <p>Philadelphia, PA &nbsp;&#183;&nbsp; April 18&#8211;20 &nbsp;&#183;&nbsp; In-Person &amp; Virtual</p>
     </div>
   </footer>
  
-  <!-- Bootstrap + jQuery AFTER AngularJS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
- 
   <script>
-    // ================================================================
-    //  TechSummit 2026 — Finalization Page
-    //  AngularJS module + controller + $http service + jQuery search
-    // ================================================================
- 
-    var app = angular.module('techSummitApp', []);
- 
-    // ── AngularJS Registration Service (wraps $http AJAX call) ───────
-    app.service('RegistrationService', ['$http', function($http) {
-      this.submit = function(payload) {
-        return $http({
-          method:  'POST',
-          url:     'https://jsonplaceholder.typicode.com/posts',
-          data:    JSON.stringify(payload),
-          headers: { 'Content-Type': 'application/json' }
-        });
-      };
-    }]);
- 
-    // ── AngularJS Controller ──────────────────────────────────────────
-    app.controller('FinalizeCtrl', ['$scope', 'RegistrationService', function($scope, RegistrationService) {
- 
-      function genId() {
-        return 'CONF-' + Date.now().toString(36).toUpperCase() +
-               Math.random().toString(36).slice(2,5).toUpperCase();
-      }
- 
-      // State
-      $scope.currentStep      = 1;
-      $scope.submitted        = false;
-      $scope.ajaxState        = null;
-      $scope.savedConfirmationId = '';
-      $scope.step1Attempted   = false;
-      $scope.step2Attempted   = false;
- 
-      // Form data model — AngularJS two-way binding via ng-model
-      $scope.formData = {
-        confirmationId:    genId(),
-        fullName:          '',
-        email:             '',
-        phone:             '',
-        institution:       '',
-        participationType: '',
-        tshirtSize:        '',
-        networking:        '',
-        specialRequests:   ''
-      };
- 
-      // JSON session catalog
-      $scope.availableSessions = [
-        { title:'Opening Keynote: The Next Decade',         category:'Keynote',       time:'9:00 AM',  duration:'90 min',  price:'Free',  selected:false },
-        { title:'Quantum Advantage: Theory to Application', category:'Workshop',      time:'11:00 AM', duration:'60 min',  price:'$99',   selected:false },
-        { title:'Zero-Trust Security in the Age of AI',     category:'Panel',         time:'2:30 PM',  duration:'45 min',  price:'$50',   selected:false },
-        { title:'Decentralizing the Web: What Comes After', category:'Panel',         time:'4:00 PM',  duration:'60 min',  price:'$50',   selected:false },
-        { title:'Introduction to Machine Learning',         category:'Workshop',      time:'10:00 AM', duration:'120 min', price:'$149',  selected:false },
-        { title:'Networking Happy Hour',                    category:'Networking',    time:'5:30 PM',  duration:'90 min',  price:'Free',  selected:false },
-        { title:'Lightning Pitch: AI Startups',            category:'Lightning Talk', time:'1:00 PM',  duration:'30 min',  price:'$25',   selected:false },
-        { title:'Building Ethical AI Systems',              category:'Workshop',      time:'3:00 PM',  duration:'60 min',  price:'$99',   selected:false }
-      ];
- 
-      // Dietary options
-      $scope.dietaryOptions = [
-        { label:'Vegetarian',        selected:false },
-        { label:'Vegan',             selected:false },
-        { label:'Gluten-Free',       selected:false },
-        { label:'Kosher',            selected:false },
-        { label:'Wheelchair Access', selected:false },
-        { label:'Sign Language',     selected:false }
-      ];
- 
-      // Count selected sessions
-      $scope.selectedCount = function() {
-        var n = 0;
-        for (var i = 0; i < $scope.availableSessions.length; i++) {
-          if ($scope.availableSessions[i].selected) n++;
-        }
-        return n;
-      };
- 
-      // Build JSON payload
-      function buildPayload() {
-        var sessions = [];
-        for (var i = 0; i < $scope.availableSessions.length; i++) {
-          var s = $scope.availableSessions[i];
-          if (s.selected) sessions.push({ title:s.title, category:s.category, time:s.time, price:s.price });
-        }
-        var dietary = [];
-        for (var j = 0; j < $scope.dietaryOptions.length; j++) {
-          if ($scope.dietaryOptions[j].selected) dietary.push($scope.dietaryOptions[j].label);
-        }
-        return {
-          confirmationId:    $scope.formData.confirmationId,
-          timestamp:         new Date().toISOString(),
-          fullName:          $scope.formData.fullName,
-          email:             $scope.formData.email,
-          phone:             $scope.formData.phone || null,
-          institution:       $scope.formData.institution,
-          participationType: $scope.formData.participationType,
-          sessions:          sessions,
-          dietaryNeeds:      dietary,
-          tshirtSize:        $scope.formData.tshirtSize || null,
-          networking:        $scope.formData.networking || null,
-          specialRequests:   $scope.formData.specialRequests || null
-        };
-      }
- 
-      // JSON preview for step 4
-      $scope.getJsonPreview = function() {
-        try { return JSON.stringify(buildPayload(), null, 2); } catch(e) { return '{}'; }
-      };
- 
-      // Step navigation
-      $scope.goToStep2 = function() {
-        $scope.step1Attempted = true;
-        if (!$scope.formData.fullName || !$scope.formData.email ||
-            !$scope.formData.institution || !$scope.formData.participationType) {
-          showToast('Please fill in all required fields.', true); return;
-        }
-        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test($scope.formData.email)) {
-          showToast('Please enter a valid email address.', true); return;
-        }
-        $scope.currentStep = 2;
-      };
- 
-      $scope.goToStep3 = function() {
-        $scope.step2Attempted = true;
-        if ($scope.selectedCount() === 0) {
-          showToast('Please select at least one session.', true); return;
-        }
-        $scope.currentStep = 3;
-      };
- 
-      // Form submit — AJAX via AngularJS RegistrationService ($http)
-      $scope.submitForm = function() {
-        if ($scope.selectedCount() === 0) { showToast('No sessions selected!', true); return; }
-        $scope.ajaxState = 'loading';
-        var payload = buildPayload();
- 
-        RegistrationService.submit(payload)
-          .then(function(response) {
-            $scope.ajaxState           = 'success';
-            $scope.savedConfirmationId = payload.confirmationId;
-            showToast('Registration submitted!');
-            setTimeout(function() {
-              $scope.$apply(function() { $scope.submitted = true; });
-            }, 1200);
-          })
-          .catch(function() {
-            $scope.ajaxState = 'error';
-            showToast('Submission failed. Please try again.', true);
-          });
-      };
- 
-      // Reset
-      $scope.resetForm = function() {
-        $scope.formData = {
-          confirmationId: genId(), fullName:'', email:'', phone:'',
-          institution:'', participationType:'', tshirtSize:'', networking:'', specialRequests:''
-        };
-        $scope.availableSessions.forEach(function(s) { s.selected = false; });
-        $scope.dietaryOptions.forEach(function(o) { o.selected = false; });
-        $scope.currentStep = 1; $scope.ajaxState = null; $scope.submitted = false;
-        $scope.step1Attempted = false; $scope.step2Attempted = false;
-      };
- 
-    }]);
- 
-    // ── Toast (vanilla JS) ────────────────────────────────────────────
     function showToast(msg, err) {
       var wrap = document.getElementById('toasts');
       var el   = document.createElement('div');
       el.className = 'toast-msg' + (err ? ' err' : '');
-      el.innerHTML = '<span>' + (err ? '✕' : '✓') + '</span><span>' + msg + '</span>';
+      el.innerHTML = '<span>' + (err ? '&#10005;' : '&#10003;') + '</span><span>' + msg + '</span>';
       wrap.appendChild(el);
-      setTimeout(function() {
-        el.classList.add('out');
-        setTimeout(function() { el.remove(); }, 300);
-      }, 3000);
+      setTimeout(function() { el.classList.add('out'); setTimeout(function() { el.remove(); }, 300); }, 3000);
     }
- 
-    // ── jQuery: session search filter ─────────────────────────────────
     $(document).ready(function() {
       $(document).on('keyup input', '#sessionSearch', function() {
         var q = $(this).val().toLowerCase().trim();
         $('#clearSessionSearch').toggle(q.length > 0);
-        $('.session-opt').each(function() {
+        $('.sess-item').each(function() {
           var text = $(this).text().toLowerCase();
           $(this).toggle(q === '' || text.indexOf(q) > -1);
         });
@@ -782,7 +462,6 @@
         $(this).hide();
       });
     });
- 
   </script>
 </body>
 </html>
