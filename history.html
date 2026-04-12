@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="historyApp" ng-cloak>
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Registration History — TechSummit 2026</title>
+  <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" />
+ 
+  <!-- AngularJS in head — required for ng-app to bootstrap correctly -->
+  <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.8.2/angular.min.js"></script>
+  <script>
+    // ── AngularJS Module ──────────────────────────────────────────────
+    var app = angular.module('historyApp', []);
+ 
+    // ── AngularJS Controller ──────────────────────────────────────────
+    // Uses $http (AJAX) to GET all orders from Node.js backend on page load
+    app.controller('HistoryCtrl', ['$scope', '$http', function($scope, $http) {
+ 
+      $scope.orders    = [];
+      $scope.loading   = true;
+      $scope.error     = null;
+      $scope.searchQuery = '';
+ 
+      // ── Fetch all orders from Node.js backend via AJAX GET ────────
+      function loadOrders() {
+        $scope.loading = true;
+        $scope.error   = null;
+ 
+        $http.get('http://localhost:3000/api/orders')
+          .then(function(response) {
+            // Sort newest first
+            $scope.orders = response.data.sort(function(a, b) {
+              return new Date(b.submittedAt) - new Date(a.submittedAt);
+            });
+            $scope.loading = false;
+          })
+          .catch(function(err) {
+            $scope.error   = 'Could not connect to the server. Make sure Node.js is running on port 3000.';
+            $scope.loading = false;
+          });
+      }
+ 
+      // ── Format date helper ────────────────────────────────────────
+      $scope.fmtDate = function(iso) {
+        if (!iso) return 'N/A';
+        return new Date(iso).toLocaleDateString('en-US', {
+          month: 'short', day: 'numeric', year: 'numeric',
+          hour: '2-digit', minute: '2-digit'
+        });
+      };
+ 
+      // ── Filter orders by search query (jQuery also used below) ────
+      $scope.filtered = function() {
+        if (!$scope.searchQuery) return $scope.orders;
+        var q = $scope.searchQuery.toLowerCase();
+        return $scope.orders.filter(function(o) {
+          return (o.fullName       || '').toLowerCase().indexOf(q) > -1 ||
+                 (o.confirmationId || '').toLowerCase().indexOf(q) > -1 ||
+                 (o.status         || '').toLowerCase().indexOf(q) > -1 ||
+                 (o.institution    || '').toLowerCase().indexOf(q) > -1;
+        });
+      };
+ 
+      // ── Load on init ──────────────────────────────────────────────
+      loadOrders();
+      $scope.reload = loadOrders;
+ 
+    }]);
+  </script>
+ 
+  <style>
+    [ng-cloak],[data-ng-cloak]{display:none!important;}
+    :root{--navy:#0d1b2a;--navy2:#1b2d45;--gold:#c9a84c;--gold2:#e8c76a;--cream:#f0ead6;--muted:#7a90b0;--border:rgba(201,168,76,0.2);--card:rgba(27,45,69,0.9);--danger:#f87171;--success:#4ade80;}
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    html{scroll-behavior:smooth;}
+    body{font-family:'Inter',sans-serif;background:var(--navy);color:var(--cream);line-height:1.6;}
+ 
+    /* NAVBAR */
+    .navbar{background:rgba(13,27,42,0.97)!important;border-bottom:1px solid var(--border);padding:1rem 0;position:sticky;top:0;z-index:999;backdrop-filter:blur(10px);}
+    .navbar-brand{font-family:'Playfair Display',serif;font-size:1.4rem;color:var(--gold)!important;display:flex;align-items:center;gap:8px;text-decoration:none;}
+    .dot{width:8px;height:8px;background:var(--gold);border-radius:50%;animation:blink 2s infinite;flex-shrink:0;}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+    .nav-link{font-size:0.8rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--muted)!important;transition:color 0.2s;text-decoration:none;}
+    .nav-link:hover,.nav-link.active{color:var(--gold)!important;}
+ 
+    /* PAGE HEADER */
+    .page-head{padding:3rem 0 2rem;border-bottom:1px solid var(--border);}
+    .eyebrow{font-size:0.7rem;letter-spacing:4px;text-transform:uppercase;color:var(--gold);margin-bottom:0.5rem;}
+    .sec-title{font-family:'Playfair Display',serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:400;color:#fff;margin-bottom:0.75rem;}
+    .divider{width:50px;height:1px;background:var(--gold);margin-bottom:1.25rem;}
+    .section{padding:3rem 0 5rem;}
+ 
+    /* STATUS BADGES */
+    .badge-pending{background:rgba(201,168,76,0.2);color:var(--gold);border:1px solid var(--gold);font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:2px;font-weight:600;}
+    .badge-approved{background:rgba(74,222,128,0.15);color:var(--success);border:1px solid var(--success);font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:2px;font-weight:600;}
+    .badge-declined{background:rgba(248,113,113,0.15);color:var(--danger);border:1px solid var(--danger);font-size:0.6rem;letter-spacing:2px;text-transform:uppercase;padding:3px 10px;border-radius:2px;font-weight:600;}
+ 
+    /* ORDER CARD */
+    .order-card{background:var(--card);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:1.25rem;transition:border-color 0.2s;}
+    .order-card:hover{border-color:rgba(201,168,76,0.5);}
+    .order-card.status-approved{border-left:3px solid var(--success);}
+    .order-card.status-declined{border-left:3px solid var(--danger);}
+    .order-card.status-pending{border-left:3px solid var(--gold);}
+    .order-head{background:linear-gradient(135deg,#1a2d50,var(--navy2));border-bottom:1px solid var(--border);padding:1rem 1.5rem;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:0.5rem;}
+    .order-id{font-family:'Playfair Display',serif;font-size:0.95rem;color:var(--gold);}
+    .order-name{font-size:0.95rem;color:#fff;font-weight:500;}
+    .order-body{padding:1.25rem 1.5rem;}
+    .order-row{display:flex;gap:0.5rem;font-size:0.83rem;color:var(--muted);margin-bottom:0.45rem;}
+    .order-row strong{color:var(--cream);}
+    .session-chip{display:inline-block;background:rgba(201,168,76,0.1);border:1px solid var(--border);color:var(--cream);font-size:0.68rem;padding:2px 8px;border-radius:2px;margin:2px;}
+ 
+    /* SEARCH */
+    .search-wrap{position:relative;margin-bottom:1.5rem;}
+    .search-input{background:rgba(255,255,255,0.04)!important;border:1px solid rgba(255,255,255,0.1)!important;color:#fff!important;border-radius:3px;padding:0.7rem 0.9rem;font-size:0.9rem;width:100%;}
+    .search-input:focus{border-color:var(--gold)!important;box-shadow:0 0 0 3px rgba(201,168,76,0.1)!important;outline:none;}
+    .search-input::placeholder{color:rgba(255,255,255,0.2)!important;}
+ 
+    /* STATES */
+    .state-box{text-align:center;padding:4rem 2rem;color:var(--muted);}
+    .state-box .icon{font-size:2.5rem;opacity:0.35;margin-bottom:0.75rem;}
+ 
+    /* COUNT BADGE */
+    .count-badge{display:inline-flex;align-items:center;justify-content:center;background:var(--gold);color:var(--navy);border-radius:50%;width:26px;height:26px;font-size:0.75rem;font-weight:700;margin-left:0.5rem;}
+ 
+    /* RELOAD BTN */
+    .btn-reload{background:transparent;border:1px solid var(--gold);color:var(--gold);font-size:0.7rem;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;padding:0.5rem 1.25rem;border-radius:2px;cursor:pointer;transition:all 0.2s;}
+    .btn-reload:hover{background:rgba(201,168,76,0.1);}
+ 
+    /* FOOTER */
+    footer{background:var(--navy2);border-top:1px solid var(--border);padding:2rem 0;text-align:center;}
+    footer .brand{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold);}
+    footer p{font-size:0.78rem;color:var(--muted);margin-top:0.25rem;}
+ 
+    @media(max-width:768px){.order-head{flex-direction:column;align-items:flex-start;}.order-body{padding:1rem;}}
+  </style>
+</head>
+ 
+<body ng-controller="HistoryCtrl">
+ 
+  <!-- NAVBAR -->
+  <nav class="navbar navbar-expand-lg">
+    <div class="container">
+      <a class="navbar-brand" href="index.html">
+        <span class="dot"></span>
+        TechSummit <em style="font-style:italic;color:var(--gold2)">2026</em>
+      </a>
+      <button class="navbar-toggler border-0" type="button" data-bs-toggle="collapse" data-bs-target="#navMenu">
+        <span style="color:var(--gold);font-size:1.3rem">&#9776;</span>
+      </button>
+      <div class="collapse navbar-collapse justify-content-end" id="navMenu">
+        <ul class="navbar-nav gap-lg-3 mt-3 mt-lg-0">
+          <li class="nav-item"><a class="nav-link" href="index.html">Home</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#speakers">Speakers</a></li>
+          <li class="nav-item"><a class="nav-link" href="index.html#schedule">Schedule</a></li>
+          <li class="nav-item"><a class="nav-link" href="sessions.html">Sessions</a></li>
+          <li class="nav-item"><a class="nav-link" href="signup.html">Register</a></li>
+          <li class="nav-item"><a class="nav-link" href="cart.html">Cart</a></li>
+          <li class="nav-item"><a class="nav-link" href="finalize.html">Finalize</a></li>
+          <li class="nav-item"><a class="nav-link active" href="history.html">History</a></li>
+          <li class="nav-item"><a class="nav-link" href="approval.html">Approval</a></li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+ 
+  <!-- PAGE HEADER -->
+  <div class="page-head">
+    <div class="container">
+      <p class="eyebrow">Customer View</p>
+      <h1 class="sec-title">Registration <em style="font-style:italic;color:var(--gold)">History</em>
+        <span class="count-badge">{{filtered().length}}</span>
+      </h1>
+      <div class="divider"></div>
+      <p style="color:var(--muted);font-size:0.9rem;max-width:520px;">
+        All registrations submitted via the finalization page. Data is fetched from the Node.js backend via AJAX and read from orders.json.
+      </p>
+    </div>
+  </div>
+ 
+  <!-- MAIN -->
+  <section class="section">
+    <div class="container">
+ 
+      <!-- Controls row -->
+      <div class="d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4">
+        <div class="search-wrap" style="flex:1;max-width:480px;margin-bottom:0;">
+          <input type="text" class="search-input" ng-model="searchQuery"
+            placeholder="Search by name, ID, institution, or status..." />
+        </div>
+        <button class="btn-reload" ng-click="reload()">&#8635; Refresh</button>
+      </div>
+ 
+      <!-- LOADING -->
+      <div class="state-box" ng-if="loading">
+        <div class="icon">&#9203;</div>
+        <p style="font-family:'Playfair Display',serif;font-size:1.1rem;">Fetching registrations from Node.js backend...</p>
+        <p style="font-size:0.8rem;margin-top:0.5rem;">GET http://localhost:3000/api/orders</p>
+      </div>
+ 
+      <!-- ERROR -->
+      <div class="state-box" ng-if="!loading && error">
+        <div class="icon">&#10005;</div>
+        <p style="font-family:'Playfair Display',serif;font-size:1.1rem;color:var(--danger);">Connection Error</p>
+        <p style="font-size:0.85rem;margin-top:0.5rem;max-width:480px;margin-left:auto;margin-right:auto;">{{error}}</p>
+        <button class="btn-reload" style="margin-top:1rem;" ng-click="reload()">Try Again</button>
+      </div>
+ 
+      <!-- EMPTY -->
+      <div class="state-box" ng-if="!loading && !error && filtered().length === 0">
+        <div class="icon">&#128203;</div>
+        <p style="font-family:'Playfair Display',serif;font-size:1.1rem;">No registrations found.</p>
+        <p style="font-size:0.85rem;margin-top:0.5rem;">Submit a registration from the Finalize page first.</p>
+      </div>
+ 
+      <!-- ORDER CARDS — rendered by AngularJS ng-repeat -->
+      <div ng-if="!loading && !error">
+        <div class="order-card status-{{order.status}}"
+          ng-repeat="order in filtered() track by $index">
+ 
+          <!-- Card header: ID, name, status badge -->
+          <div class="order-head">
+            <div>
+              <div class="order-id">{{order.confirmationId}}</div>
+              <div class="order-name">{{order.fullName}}</div>
+            </div>
+            <div style="display:flex;align-items:center;gap:0.75rem;">
+              <span class="badge-pending"  ng-if="order.status === 'pending'">Pending</span>
+              <span class="badge-approved" ng-if="order.status === 'approved'">Approved</span>
+              <span class="badge-declined" ng-if="order.status === 'declined'">Declined</span>
+              <span style="font-size:0.75rem;color:var(--muted);">{{fmtDate(order.submittedAt)}}</span>
+            </div>
+          </div>
+ 
+          <!-- Card body: details -->
+          <div class="order-body">
+            <div class="row g-3">
+              <div class="col-md-6">
+                <div class="order-row">&#9993; &nbsp;<strong>{{order.email}}</strong></div>
+                <div class="order-row">&#127963; &nbsp;<strong>{{order.institution}}</strong></div>
+                <div class="order-row">&#127903; &nbsp;<strong>{{order.participationType}}</strong></div>
+                <div class="order-row" ng-if="order.phone">&#128222; &nbsp;<strong>{{order.phone}}</strong></div>
+                <div class="order-row" ng-if="order.networking">&#129309; &nbsp;Networking: <strong>{{order.networking}}</strong></div>
+                <div class="order-row" ng-if="order.tshirtSize">&#128248; &nbsp;T-Shirt: <strong>{{order.tshirtSize}}</strong></div>
+              </div>
+              <div class="col-md-6">
+                <div style="font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:0.5rem;">Sessions Registered</div>
+                <div ng-if="order.sessions && order.sessions.length > 0">
+                  <span class="session-chip" ng-repeat="s in order.sessions track by $index">
+                    {{s.title}} &mdash; {{s.price}}
+                  </span>
+                </div>
+                <div ng-if="!order.sessions || order.sessions.length === 0" style="font-size:0.8rem;color:var(--muted);">No sessions selected.</div>
+                <div ng-if="order.dietaryNeeds && order.dietaryNeeds.length > 0" style="margin-top:0.75rem;">
+                  <div style="font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);margin-bottom:0.35rem;">Dietary Needs</div>
+                  <span class="session-chip" ng-repeat="d in order.dietaryNeeds track by $index">{{d}}</span>
+                </div>
+              </div>
+            </div>
+            <div ng-if="order.specialRequests" style="margin-top:0.75rem;padding-top:0.75rem;border-top:1px solid var(--border);">
+              <span style="font-size:0.7rem;letter-spacing:2px;text-transform:uppercase;color:var(--gold);">Special Requests: </span>
+              <span style="font-size:0.83rem;color:var(--muted);">{{order.specialRequests}}</span>
+            </div>
+          </div>
+ 
+        </div>
+      </div>
+ 
+    </div>
+  </section>
+ 
+  <!-- FOOTER -->
+  <footer>
+    <div class="container">
+      <p class="brand">TechSummit <em style="font-style:italic">2026</em></p>
+      <p>Philadelphia, PA &nbsp;&#183;&nbsp; April 18&#8211;20 &nbsp;&#183;&nbsp; In-Person &amp; Virtual</p>
+    </div>
+  </footer>
+ 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+ 
+</body>
+</html>
+ 
