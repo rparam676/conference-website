@@ -11,7 +11,7 @@
     var app = angular.module('techSummitApp', []);
     app.service('RegistrationService', ['$http', function($http) {
       this.submit = function(payload) {
-        return $http({ method:'POST', url:'https://jsonplaceholder.typicode.com/posts', data:payload, headers:{'Content-Type':'application/json'} });
+        return $http({ method:'POST', url:'http://localhost:3000/api/orders', data:payload, headers:{'Content-Type':'application/json'} });
       };
     }]);
     app.controller('FinalizeCtrl', ['$scope','RegistrationService', function($scope, RegistrationService) {
@@ -171,6 +171,8 @@
           <li class="nav-item"><a class="nav-link" href="signup.html">Register</a></li>
           <li class="nav-item"><a class="nav-link" href="cart.html">Cart</a></li>
           <li class="nav-item"><a class="nav-link active" href="finalize.html">Finalize</a></li>
+          <li class="nav-item"><a class="nav-link" href="history.html">History</a></li>
+          <li class="nav-item"><a class="nav-link" href="approval.html">Approval</a></li>
         </ul>
       </div>
     </div>
@@ -465,4 +467,3 @@
   </script>
 </body>
 </html>
- 
