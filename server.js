@@ -129,5 +129,6 @@ app.listen(PORT, function() {
   console.log('    GET    /api/orders         - get all registrations');
   console.log('    GET    /api/orders/pending - get pending registrations');
   console.log('    PUT    /api/orders/:id     - approve or decline');
+  console.log('    DELETE /api/orders/:id     - delete approved/declined order');
   console.log('');
 });
