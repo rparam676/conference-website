@@ -1,0 +1,197 @@
+[
+  {
+    "confirmationId": "CONF-MNW5UV8P21Q",
+    "timestamp": "2026-04-12T19:32:57.847Z",
+    "fullName": "Rahul Param",
+    "email": "rzp5580@psu.edu",
+    "phone": null,
+    "institution": "PSU",
+    "participationType": "In-Person",
+    "sessions": [
+      {
+        "title": "Decentralizing the Web: What Comes After",
+        "category": "Panel",
+        "time": "4:00 PM",
+        "price": "$50"
+      }
+    ],
+    "dietaryNeeds": [
+      "Gluten-Free"
+    ],
+    "tshirtSize": null,
+    "networking": "Yes",
+    "specialRequests": null,
+    "status": "declined",
+    "submittedAt": "2026-04-12T19:32:57.869Z",
+    "updatedAt": "2026-04-23T13:18:20.517Z"
+  },
+  {
+    "confirmationId": "CONF-MNW5VRWC92X",
+    "timestamp": "2026-04-12T19:33:40.713Z",
+    "fullName": "Jordan Rivera",
+    "email": "uej@psu.edu",
+    "phone": null,
+    "institution": "PSU",
+    "participationType": "VIP",
+    "sessions": [
+      {
+        "title": "Lightning Pitch: AI Startups",
+        "category": "Lightning Talk",
+        "time": "1:00 PM",
+        "price": "$25"
+      }
+    ],
+    "dietaryNeeds": [
+      "Gluten-Free"
+    ],
+    "tshirtSize": null,
+    "networking": "No",
+    "specialRequests": null,
+    "status": "approved",
+    "submittedAt": "2026-04-12T19:33:40.720Z",
+    "updatedAt": "2026-04-12T19:33:48.643Z"
+  },
+  {
+    "confirmationId": "CONF-MNW5WEL84SP",
+    "timestamp": "2026-04-12T19:34:09.920Z",
+    "fullName": "Jack Austin",
+    "email": "ska@psu.edu",
+    "phone": null,
+    "institution": "PSU",
+    "participationType": "VIP",
+    "sessions": [
+      {
+        "title": "Zero-Trust Security in the Age of AI",
+        "category": "Panel",
+        "time": "2:30 PM",
+        "price": "$50"
+      }
+    ],
+    "dietaryNeeds": [
+      "Kosher"
+    ],
+    "tshirtSize": null,
+    "networking": "No",
+    "specialRequests": null,
+    "status": "declined",
+    "submittedAt": "2026-04-12T19:34:09.927Z",
+    "updatedAt": "2026-04-12T19:34:15.092Z"
+  },
+  {
+    "confirmationId": "CONF-MO1HIE46XNB",
+    "timestamp": "2026-04-16T12:58:27.168Z",
+    "fullName": "Jack Edwards",
+    "email": "jed@psu.edu",
+    "phone": null,
+    "institution": "Indiana University",
+    "participationType": "In-Person",
+    "sessions": [
+      {
+        "title": "Zero-Trust Security in the Age of AI",
+        "category": "Panel",
+        "time": "2:30 PM",
+        "price": "$50"
+      }
+    ],
+    "dietaryNeeds": [
+      "Vegetarian",
+      "Gluten-Free"
+    ],
+    "tshirtSize": null,
+    "networking": "No",
+    "specialRequests": null,
+    "status": "declined",
+    "submittedAt": "2026-04-16T12:58:27.193Z",
+    "updatedAt": "2026-04-23T13:18:19.748Z"
+  },
+  {
+    "confirmationId": "CONF-MO1HMW5RH4J",
+    "timestamp": "2026-04-16T13:01:54.720Z",
+    "fullName": "Rahul Param",
+    "email": "rzp5580@psu.edu",
+    "phone": null,
+    "institution": "PSU",
+    "participationType": "Virtual",
+    "sessions": [
+      {
+        "title": "Lightning Pitch: AI Startups",
+        "category": "Lightning Talk",
+        "time": "1:00 PM",
+        "price": "$25"
+      },
+      {
+        "title": "Building Ethical AI Systems",
+        "category": "Workshop",
+        "time": "3:00 PM",
+        "price": "$99"
+      }
+    ],
+    "dietaryNeeds": [
+      "Vegan"
+    ],
+    "tshirtSize": null,
+    "networking": "Yes",
+    "specialRequests": null,
+    "status": "declined",
+    "submittedAt": "2026-04-16T13:01:54.726Z",
+    "updatedAt": "2026-04-23T13:18:19.238Z"
+  },
+  {
+    "confirmationId": "CONF-MO1IIUGYNQT",
+    "timestamp": "2026-04-16T13:26:40.670Z",
+    "fullName": "Rahul Param",
+    "email": "rzp5580@psu.edu",
+    "phone": null,
+    "institution": "PSU",
+    "participationType": "In-Person",
+    "sessions": [
+      {
+        "title": "Opening Keynote: The Next Decade",
+        "category": "Keynote",
+        "time": "9:00 AM",
+        "price": "Free"
+      },
+      {
+        "title": "Zero-Trust Security in the Age of AI",
+        "category": "Panel",
+        "time": "2:30 PM",
+        "price": "$50"
+      }
+    ],
+    "dietaryNeeds": [
+      "Gluten-Free"
+    ],
+    "tshirtSize": null,
+    "networking": "Yes",
+    "specialRequests": null,
+    "status": "declined",
+    "submittedAt": "2026-04-16T13:26:40.690Z",
+    "updatedAt": "2026-04-16T13:26:55.574Z"
+  },
+  {
+    "confirmationId": "CONF-MO1IKAX6Z2B",
+    "timestamp": "2026-04-16T13:29:34.652Z",
+    "fullName": "Rahul Param",
+    "email": "rzp5580@psu.edu",
+    "phone": null,
+    "institution": "PSU",
+    "participationType": "Virtual",
+    "sessions": [
+      {
+        "title": "Opening Keynote: The Next Decade",
+        "category": "Keynote",
+        "time": "9:00 AM",
+        "price": "Free"
+      }
+    ],
+    "dietaryNeeds": [
+      "Vegetarian"
+    ],
+    "tshirtSize": null,
+    "networking": "No",
+    "specialRequests": null,
+    "status": "approved",
+    "submittedAt": "2026-04-16T13:29:34.660Z",
+    "updatedAt": "2026-04-16T13:29:45.515Z"
+  }
+]
