@@ -62,6 +62,38 @@
         });
       };
  
+      // ── Delete an approved or declined order ─────────────────────
+      $scope.deleting = {};
+ 
+      $scope.deleteOrder = function(order) {
+        if (!$scope.confirm_delete) {
+          $scope.confirm_delete = order.confirmationId;
+          return;
+        }
+        if ($scope.confirm_delete !== order.confirmationId) {
+          $scope.confirm_delete = order.confirmationId;
+          return;
+        }
+        $scope.deleting[order.confirmationId] = true;
+        $scope.confirm_delete = null;
+ 
+        $http.delete('http://localhost:3000/api/orders/' + order.confirmationId)
+          .then(function() {
+            $scope.orders = $scope.orders.filter(function(o) {
+              return o.confirmationId !== order.confirmationId;
+            });
+            $scope.deleting[order.confirmationId] = false;
+          })
+          .catch(function() {
+            $scope.deleting[order.confirmationId] = false;
+            alert('Could not delete order. Make sure the server is running.');
+          });
+      };
+ 
+      $scope.cancelDelete = function() {
+        $scope.confirm_delete = null;
+      };
+ 
       // ── Load on init ──────────────────────────────────────────────
       loadOrders();
       $scope.reload = loadOrders;
@@ -132,6 +164,10 @@
     footer .brand{font-family:'Playfair Display',serif;font-size:1.3rem;color:var(--gold);}
     footer p{font-size:0.78rem;color:var(--muted);margin-top:0.25rem;}
  
+    .btn-delete{background:transparent;border:1px solid var(--danger);color:var(--danger);font-size:0.62rem;font-weight:600;letter-spacing:1.2px;text-transform:uppercase;padding:4px 10px;border-radius:2px;cursor:pointer;transition:all 0.2s;}
+    .btn-delete:hover{background:rgba(248,113,113,0.12);}
+    .btn-confirm{background:rgba(248,113,113,0.15);border:1px solid var(--danger);color:var(--danger);font-size:0.62rem;font-weight:700;letter-spacing:1.2px;text-transform:uppercase;padding:4px 10px;border-radius:2px;cursor:pointer;}
+    .btn-cancel-del{background:transparent;border:1px solid var(--muted);color:var(--muted);font-size:0.62rem;letter-spacing:1.2px;text-transform:uppercase;padding:4px 8px;border-radius:2px;cursor:pointer;}
     @media(max-width:768px){.order-head{flex-direction:column;align-items:flex-start;}.order-body{padding:1rem;}}
   </style>
 </head>
@@ -224,11 +260,28 @@
               <div class="order-id">{{order.confirmationId}}</div>
               <div class="order-name">{{order.fullName}}</div>
             </div>
-            <div style="display:flex;align-items:center;gap:0.75rem;">
+            <div style="display:flex;align-items:center;gap:0.75rem;flex-wrap:wrap;">
               <span class="badge-pending"  ng-if="order.status === 'pending'">Pending</span>
               <span class="badge-approved" ng-if="order.status === 'approved'">Approved</span>
               <span class="badge-declined" ng-if="order.status === 'declined'">Declined</span>
               <span style="font-size:0.75rem;color:var(--muted);">{{fmtDate(order.submittedAt)}}</span>
+ 
+              <!-- Delete button — only on approved or declined orders -->
+              <span ng-if="order.status !== 'pending'">
+                <!-- Step 1: first click shows confirm -->
+                <button class="btn-delete" ng-if="confirm_delete !== order.confirmationId && !deleting[order.confirmationId]"
+                  ng-click="deleteOrder(order)">&#10005; Delete</button>
+ 
+                <!-- Step 2: confirm / cancel -->
+                <span ng-if="confirm_delete === order.confirmationId" style="display:inline-flex;gap:4px;align-items:center;">
+                  <span style="font-size:0.65rem;color:var(--danger);letter-spacing:0.5px;">Sure?</span>
+                  <button class="btn-confirm" ng-click="deleteOrder(order)">Yes, Delete</button>
+                  <button class="btn-cancel-del" ng-click="cancelDelete()">Cancel</button>
+                </span>
+ 
+                <!-- Deleting spinner -->
+                <span ng-if="deleting[order.confirmationId]" style="font-size:0.72rem;color:var(--muted);">Deleting...</span>
+              </span>
             </div>
           </div>
  
